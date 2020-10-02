@@ -47,27 +47,38 @@ include(macros_and_options)
 ## order defined below is crucial for setting up the cmake environment correctly
 include(get_tbb)
 
+set(BOOST_ARGS ./b2 install --prefix=${CMAKE_CURRENT_BINARY_DIR}/install --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-filesystem install)
+set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz)
+if (USE_PYTHON)
+  find_package(Python REQUIRED)
+  message("python: " ${Python_EXECUTABLE})
+  file(
+    WRITE python-config.jam
+    using python : 2.7 : "/usr/bin/python2" : "/usr/include/python2.7" ;
+  )
+  if (USE_PYTHON2)
+    set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz)
+  else()
+    set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.70.0/boost_1_70_0.tar.gz)
+  endif()
+  set(BOOST_ARGS "${BOOST_ARGS} --with-python --user-config=python-config.jam ")
+endif()
+
 ExternalProject_Add(boost
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/source/boost
+  #URL ${BOOST_URL}
   URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz
-  #GIT_REPOSITORY https://github.com/boostorg/boost.git
-  #GIT_TAG "boost-1.61.0"
   CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_CURRENT_BINARY_DIR}/install/
-  # --with-python
-  BUILD_COMMAND ./b2 install --prefix=${CMAKE_CURRENT_BINARY_DIR}/install --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-filesystem install
-  #BUILD_COMMAND ./b2 -a install --prefix=${CMAKE_CURRENT_BINARY_DIR}/install --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j64 address-model=64 link=shared runtime-link=shared threading=multi variant=release --without-python --without-mpi install
+  BUILD_COMMAND ${BOOST_ARGS}
+  #BUILD_COMMAND ./b2 install --prefix=${CMAKE_CURRENT_BINARY_DIR}/install --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-filesystem install
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND ""
-  #\
-  #  cp -r ${CMAKE_CURRENT_BINARY_DIR}/install/source/boost/src/boost/libs/assign/include/boost/assign ${CMAKE_CURRENT_BINARY_DIR}/install/include/boost/ ;\
-  #  cp -r ${CMAKE_CURRENT_BINARY_DIR}/install/source/boost/src/boost/libs/assign/include/boost/assign.hpp ${CMAKE_CURRENT_BINARY_DIR}/install/include/boost/"
   INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install
 )
 
 build_component(
   NAME USD
   VERSION "v20.05"
-  #VERSION "v20.08"
   URL "https://github.com/PixarAnimationStudios/USD"
   BUILD_ARGS
     -DTBB_ROOT=${TBB_PATH}
