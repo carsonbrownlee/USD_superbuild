@@ -37,8 +37,10 @@ project(USD_superbuild)
 include(ExternalProject)
 include(GNUInstallDirs)
 include(ProcessorCount)
-
 include(macros_and_options)
+
+option(USE_PYTHON "enable python support" FALSE)
+option(USE_PYTHON2 "if USE_PYTHON enabled, use python2 instead of python3" FALSE)
 
 ###############################################################################
 ###############################################################################
@@ -47,27 +49,28 @@ include(macros_and_options)
 ## order defined below is crucial for setting up the cmake environment correctly
 include(get_tbb)
 
-set(BOOST_ARGS ./b2 install --prefix=${CMAKE_CURRENT_BINARY_DIR}/install --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-filesystem install)
+set(BOOST_ARGS ./b2 install --prefix=${CMAKE_CURRENT_BINARY_DIR}/install --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-filesystem)
 set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz)
 if (USE_PYTHON)
-  find_package(Python REQUIRED)
-  message("python: " ${Python_EXECUTABLE})
-  file(
-    WRITE python-config.jam
-    using python : 2.7 : "/usr/bin/python2" : "/usr/include/python2.7" ;
-  )
   if (USE_PYTHON2)
+    find_package(Python2 REQUIRED)
+    message("python: " ${Python2_EXECUTABLE})
+    message("writing file: " ${CMAKE_CURRENT_BINARY_DIR}/source/boost/src/boost/python-config.jam)
+    file(
+      WRITE ${CMAKE_CURRENT_BINARY_DIR}/source/boost/src/boost/python-config.jam
+      "using python : 2.7 : \"/usr/bin/python2\" : \"/usr/include/python2.7\" ;"
+    )
     set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz)
   else()
+    find_package(Python3 REQUIRED)
     set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.70.0/boost_1_70_0.tar.gz)
   endif()
-  set(BOOST_ARGS "${BOOST_ARGS} --with-python --user-config=python-config.jam ")
+  set(BOOST_ARGS ${BOOST_ARGS} --with-python --user-config=python-config.jam )
 endif()
 
 ExternalProject_Add(boost
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/source/boost
-  #URL ${BOOST_URL}
-  URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz
+  URL ${BOOST_URL}
   CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_CURRENT_BINARY_DIR}/install/
   BUILD_COMMAND ${BOOST_ARGS}
   #BUILD_COMMAND ./b2 install --prefix=${CMAKE_CURRENT_BINARY_DIR}/install --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-filesystem install
@@ -80,7 +83,7 @@ build_component(
   NAME USD
   VERSION "v20.05"
   URL "https://github.com/PixarAnimationStudios/USD"
-  BUILD_ARGS
+  UILD_ARGS
     -DTBB_ROOT=${TBB_PATH}
     -DBoost_INCLUDE_DIR=${CMAKE_CURRENT_BINARY_DIR}/install/include
     -DBoost_LIBRARY_DIR_RELEASE=${CMAKE_CURRENT_BINARY_DIR}/install/lib/
