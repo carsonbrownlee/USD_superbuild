@@ -49,6 +49,11 @@ option(USE_PYTHON2 "if USE_PYTHON enabled, use python2 instead of python3" FALSE
 ## order defined below is crucial for setting up the cmake environment correctly
 include(get_tbb)
 
+
+##
+## Boost
+##
+
 set(BOOST_ARGS ./b2 install --prefix=${CMAKE_CURRENT_BINARY_DIR}/install --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-filesystem)
 set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz)
 if (USE_PYTHON)
@@ -58,11 +63,16 @@ if (USE_PYTHON)
     message("writing file: " ${CMAKE_CURRENT_BINARY_DIR}/source/boost/src/boost/python-config.jam)
     file(
       WRITE ${CMAKE_CURRENT_BINARY_DIR}/source/boost/src/boost/python-config.jam
-      "using python : 2.7 : \"/usr/bin/python2\" : \"/usr/include/python2.7\" ;"
+      "using python : ${Python2_VERSION_MAJOR}.${Python2_VERSION_MINOR} : \"${Python2_EXECUTABLE}\" ;"
     )
     set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz)
   else()
     find_package(Python3 REQUIRED)
+    message("python: " ${Python3_EXECUTABLE})
+    file(
+      WRITE ${CMAKE_CURRENT_BINARY_DIR}/source/boost/src/boost/python-config.jam
+      "using python : ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR} : \"${Python3_EXECUTABLE}\" ;"
+    )
     set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.70.0/boost_1_70_0.tar.gz)
   endif()
   set(BOOST_ARGS ${BOOST_ARGS} --with-python --user-config=python-config.jam )
@@ -79,17 +89,113 @@ ExternalProject_Add(boost
   INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install
 )
 
+##
+## OpenEXR
+##
+
 build_component(
-  NAME USD
-  VERSION "v20.05"
-  URL "https://github.com/PixarAnimationStudios/USD"
-  UILD_ARGS
-    -DTBB_ROOT=${TBB_PATH}
-    -DBoost_INCLUDE_DIR=${CMAKE_CURRENT_BINARY_DIR}/install/include
-    -DBoost_LIBRARY_DIR_RELEASE=${CMAKE_CURRENT_BINARY_DIR}/install/lib/
-    -DBoost_PROGRAM_OPTIONS_LIBRARY_RELEASE=${CMAKE_CURRENT_BINARY_DIR}/install/lib/libboost_program_options.so
-    -DPXR_ENABLE_PYTHON_SUPPORT=OFF
-    -DPXR_BUILD_USD_IMAGING=OFF
-  DEPENDS_ON tbb boost
+  NAME OpenEXR
+  VERSION "v2.4.0"
+  URL "https://github.com/AcademySoftwareFoundation/openexr"
+  BUILD_ARGS ""
+  DEPENDS_ON tbb
   OMIT_FROM_INSTALL
 )
+
+##
+## OIIO
+##
+
+#build_component(
+# NAME OIIO
+# VERSION "Release-1.8.9"
+# URL "https://github.com/OpenImageIO/oiio"
+# BUILD_ARGS 
+#  -DBoost_INCLUDE_DIR=${CMAKE_CURRENT_BINARY_DIR}/install/include " "
+#  -DBoost_LIBRARY_DIR_RELEASE=${CMAKE_CURRENT_BINARY_DIR}/install/lib/ " "
+#  -DOIIO_BUILD_TOOLS=OFF
+#  -DOIIO_BUILD_TESTS=OFF
+#  -DUSE_PYTHON=OFF
+#  -DSTOP_ON_WARNING=OFF
+#  -DOPENEXR_HOME=${CMAKE_CURRENT_BINARY_DIR}/install
+#  -DUSE_PTEX=OFF
+#  -DBoost_NO_BOOST_CMAKE=On
+#  -DBoost_NO_SYSTEM_PATHS=True
+# DEPENDS_ON OpenEXR
+# OMIT_FROM_INSTALL
+#)
+
+##
+## OpenSubdiv
+##
+
+build_component(
+  NAME OpenSubdiv
+  VERSION "v3_4_3"
+  URL https://github.com/PixarAnimationStudios/OpenSubdiv
+  BUILD_ARGS ""
+  DEPENDS_ON
+  OMIT_FROM_INSTALL
+)
+
+##
+## GLEW
+##
+
+#build_component(
+  #NAME GLEW
+  #VERSION "glew-2.0.0"
+  #URL https://github.com/nigels-com/glew
+  #BUILD_ARGS ""
+  #DEPENDS_ON
+#)
+
+##
+## Ptex
+##
+
+#build_component(
+#  NAME Ptex
+#  VERSION "v2.1.28"
+#  URL https://github.com/wdas/ptex
+#  BUILD_ARGS ""
+#  DEPENDS_ON
+#)
+
+##
+## USD
+##
+
+set(USD_ARGS 
+    -DTBB_ROOT=${TBB_PATH} " "
+    -DBoost_INCLUDE_DIR=${CMAKE_CURRENT_BINARY_DIR}/install/include " "
+    -DBoost_LIBRARY_DIR_RELEASE=${CMAKE_CURRENT_BINARY_DIR}/install/lib/ " "
+    -DBoost_PROGRAM_OPTIONS_LIBRARY_RELEASE=${CMAKE_CURRENT_BINARY_DIR}/install/lib/libboost_program_options.so " "
+    -DPXR_BUILD_USD_IMAGING=OFF " "
+)
+
+if (USE_PYTHON)
+    set(USD_ARGS ${USD_ARGS} -DPXR_ENABLE_PYTHON_SUPPORT=ON " ")
+    if (USE_PYTHON2)
+      set(USD_ARGS ${USD_ARGS} -DPXR_PYTHON_SHEBANG=${Python2_EXECUTABLE} " ")
+      set(USD_ARGS ${USD_ARGS} -DPYTHON_EXECUTABLE=${Python2_EXECUTABLE} " ")
+      #set(USD_ARGS ${USD_ARGS} -DPYTHON_INCLUDE=/usr/include/python2.7 " ")
+      #set(USD_ARGS ${USD_ARGS} -DPYTHON_LIBRARY=/usr/lib/libpython2.7.so " ")
+      set(USD_ARGS ${USD_ARGS} -DPXR_USE_PYTHON_3=OFF " ")
+    else()
+      set(USD_ARGS ${USD_ARGS} -DPXR_PYTHON_SHEBANG=${Python3_EXECUTABLE} " ")
+      set(USD_ARGS ${USD_ARGS} -DPXR_USE_PYTHON_3=ON " ")
+    endif()
+else()
+    set(USD_ARGS ${USD_ARGS} -DPXR_ENABLE_PYTHON_SUPPORT=OFF " ")
+endif()
+
+
+#build_component(
+#  NAME USD
+#  VERSION "v20.05"
+#  URL "https://github.com/PixarAnimationStudios/USD"
+#  BUILD_ARGS ${USD_ARGS}
+#  DEPENDS_ON tbb boost
+#)
+

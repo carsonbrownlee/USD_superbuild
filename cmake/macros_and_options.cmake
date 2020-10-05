@@ -39,14 +39,14 @@ macro(setup_component_path_vars _NAME _VERSION)
   set(COMPONENT_NAME ${_NAME})
   set(COMPONENT_FULL_NAME ${_NAME}-${_VERSION})
 
-  set(COMPONENT_INSTALL_PATH ${INSTALL_DIR_ABSOLUTE}/install)
+  set(COMPONENT_INSTALL_PATH ${INSTALL_DIR_ABSOLUTE})
   if(INSTALL_IN_SEPARATE_DIRECTORIES)
     set(COMPONENT_INSTALL_PATH
-        ${INSTALL_DIR_ABSOLUTE}/install/${COMPONENT_FULL_NAME})
+        ${INSTALL_DIR_ABSOLUTE}/${COMPONENT_FULL_NAME})
   endif()
 
   set(COMPONENT_DOWNLOAD_PATH ${COMPONENT_FULL_NAME})
-  set(COMPONENT_SOURCE_PATH ${INSTALL_DIR_ABSOLUTE}/source/${COMPONENT_FULL_NAME})
+  set(COMPONENT_SOURCE_PATH ${COMPONENT_FULL_NAME}/source)
   set(COMPONENT_STAMP_PATH ${COMPONENT_FULL_NAME}/stamp)
   set(COMPONENT_BUILD_PATH ${COMPONENT_FULL_NAME}/build)
 endmacro()
@@ -71,8 +71,8 @@ macro(build_component)
   setup_component_path_vars(${BUILD_COMPONENT_NAME} ${BUILD_COMPONENT_VERSION})
 
   if(BUILD_COMPONENT_OMIT_FROM_INSTALL)
-    set(COMPONENT_SOURCE_PATH ${COMPONENT_FULL_NAME}/source)
-    set(COMPONENT_INSTALL_PATH ${CMAKE_BINARY_DIR}/${COMPONENT_NAME}/install)
+    #set(COMPONENT_SOURCE_PATH ${COMPONENT_FULL_NAME}/source)
+    #set(COMPONENT_INSTALL_PATH ${CMAKE_BINARY_DIR}/${COMPONENT_NAME}/install)
   endif()
 
   # Setup where we get source from (clone repo or download source zip)
@@ -109,6 +109,11 @@ macro(build_component)
       -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
       ${BUILD_COMPONENT_BUILD_ARGS}
     BUILD_COMMAND ${DEFAULT_BUILD_COMMAND}
+    INSTALL_COMMAND 
+      COMMAND make install
+      COMMAND "${CMAKE_COMMAND}" -E copy_directory
+      ${COMPONENT_INSTALL_PATH}/lib/
+      ${installDir}/lib/
     BUILD_ALWAYS OFF
   )
 
@@ -129,7 +134,7 @@ macro(build_component)
     set(EXTRAS_INSTALL_PATH ${COMPONENT_INSTALL_PATH})
 
     # setup vars for the extras target defined below
-    #setup_component_path_vars(${COMPONENT_NAME}_extras "")
+    setup_component_path_vars(${COMPONENT_NAME}_extras "")
 
     if(WIN32)
       set(PLATFORM_DIR windows)
@@ -137,19 +142,20 @@ macro(build_component)
       set(PLATFORM_DIR linux)
     endif()
 
+    message("installDir ${installDir}")
     ExternalProject_Add(${COMPONENT_NAME}
       PREFIX ${COMPONENT_FULL_NAME}
       DOWNLOAD_DIR ${COMPONENT_DOWNLOAD_PATH}
       STAMP_DIR ${COMPONENT_STAMP_PATH}
-      SOURCE_DIR ${COMPONENT_SOURCE_PATH}
+      SOURCE_DIR ${COMPONENT_NAME}/source
       BINARY_DIR ${COMPONENT_BUILD_PATH}
       DOWNLOAD_COMMAND ""
       CONFIGURE_COMMAND ""
       BUILD_COMMAND ""
-      #INSTALL_COMMAND "${CMAKE_COMMAND}" -E copy_directory
-      #  <SOURCE_DIR>/${PLATFORM_DIR}
-      #  ${EXTRAS_INSTALL_PATH}
-      BUILD_ALWAYS OFF
+      #INSTALL_COMMAND COMMAND "${CMAKE_COMMAND}" -E copy
+      #  ${COMPONENT_INSTALL_PATH}/lib/*
+      #  ${installDir}/lib/
+      BUILD_ALWAYS ON
     )
   endif()
 endmacro()
