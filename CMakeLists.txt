@@ -1,5 +1,5 @@
 ## ======================================================================== ##
-## Copyright 2009-2019 Intel Corporation                                    ##
+## Copyright 2009-2020 Intel Corporation                                    ##
 ##                                                                          ##
 ## Licensed under the Apache License, Version 2.0 (the "License");          ##
 ## you may not use this file except in compliance with the License.         ##
@@ -109,7 +109,7 @@ build_component(
  NAME OIIO
  VERSION "Release-1.8.17"
  URL "https://github.com/OpenImageIO/oiio"
- BUILD_ARGS 
+ BUILD_ARGS
   -DBoost_INCLUDE_DIR=${INSTALL_DIR}/include " "
   -DBoost_LIBRARY_DIR_RELEASE=${INSTALL_DIR}/lib/ " "
   -DOIIO_BUILD_TOOLS=OFF
@@ -163,7 +163,7 @@ build_component(
 ## USD
 ##
 
-set(USD_ARGS 
+set(USD_ARGS
     -DTBB_ROOT=${TBB_PATH} " "
     -DBoost_INCLUDE_DIR=${INSTALL_DIR}/include " "
     -DBoost_LIBRARY_DIR_RELEASE=${INSTALL_DIR}/lib/ " "
