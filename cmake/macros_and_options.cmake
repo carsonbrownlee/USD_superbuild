@@ -114,6 +114,9 @@ macro(build_component)
       COMMAND "${CMAKE_COMMAND}" -E copy_directory
       ${COMPONENT_INSTALL_PATH}/lib/
       ${installDir}/lib/
+      COMMAND "${CMAKE_COMMAND}" -E copy_directory
+      ${COMPONENT_INSTALL_PATH}/include
+      ${installDir}/include
     BUILD_ALWAYS OFF
   )
 
@@ -128,7 +131,7 @@ macro(build_component)
 
   # Define extra build target which installs extra scripts
 
-  if(NOT BUILD_COMPONENT_OMIT_FROM_INSTALL)
+  if(FALSE) #NOT BUILD_COMPONENT_OMIT_FROM_INSTALL)
     # stash some old values form the component just built above
     set(BASE_COMPONENT_NAME ${COMPONENT_NAME})
     set(EXTRAS_INSTALL_PATH ${COMPONENT_INSTALL_PATH})
