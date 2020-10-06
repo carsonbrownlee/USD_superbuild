@@ -98,7 +98,6 @@ build_component(
   VERSION "v2.4.0"
   URL "https://github.com/AcademySoftwareFoundation/openexr"
   BUILD_ARGS ""
-  DEPENDS_ON tbb
 )
 
 ##
