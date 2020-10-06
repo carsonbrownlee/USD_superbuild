@@ -55,7 +55,7 @@ set(INSTALL_DIR ${CMAKE_BINARY_DIR}/install )
 ## Boost
 ##
 
-set(BOOST_ARGS ./b2 install --prefix=${CMAKE_CURRENT_BINARY_DIR}/install --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-filesystem)
+set(BOOST_ARGS ./b2 install --prefix=${INSTALL_DIR} --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-filesystem)
 set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz)
 if (USE_PYTHON)
   if (USE_PYTHON2)
@@ -82,9 +82,8 @@ endif()
 ExternalProject_Add(boost
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/source/boost
   URL ${BOOST_URL}
-  CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_CURRENT_BINARY_DIR}/install/
+  CONFIGURE_COMMAND ./bootstrap.sh --prefix=${INSTALL_DIR}
   BUILD_COMMAND ${BOOST_ARGS}
-  #BUILD_COMMAND ./b2 install --prefix=${CMAKE_CURRENT_BINARY_DIR}/install --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-filesystem install
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND ""
   INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install
@@ -111,13 +110,13 @@ build_component(
  VERSION "Release-1.8.17"
  URL "https://github.com/OpenImageIO/oiio"
  BUILD_ARGS 
-  -DBoost_INCLUDE_DIR=${CMAKE_CURRENT_BINARY_DIR}/install/include " "
-  -DBoost_LIBRARY_DIR_RELEASE=${CMAKE_CURRENT_BINARY_DIR}/install/lib/ " "
+  -DBoost_INCLUDE_DIR=${INSTALL_DIR}/include " "
+  -DBoost_LIBRARY_DIR_RELEASE=${INSTALL_DIR}/lib/ " "
   -DOIIO_BUILD_TOOLS=OFF
   -DOIIO_BUILD_TESTS=OFF
   -DUSE_PYTHON=OFF
   -DSTOP_ON_WARNING=OFF
-  -DOPENEXR_HOME=${CMAKE_CURRENT_BINARY_DIR}/install
+  -DOPENEXR_HOME=${INSTALL_DIR}
   -DUSE_PTEX=OFF
   -DBoost_NO_BOOST_CMAKE=On
   -DBoost_NO_SYSTEM_PATHS=True
@@ -166,13 +165,14 @@ build_component(
 
 set(USD_ARGS 
     -DTBB_ROOT=${TBB_PATH} " "
-    -DBoost_INCLUDE_DIR=${CMAKE_CURRENT_BINARY_DIR}/install/include " "
-    -DBoost_LIBRARY_DIR_RELEASE=${CMAKE_CURRENT_BINARY_DIR}/install/lib/ " "
-    -DBoost_PROGRAM_OPTIONS_LIBRARY_RELEASE=${CMAKE_CURRENT_BINARY_DIR}/install/lib/libboost_program_options.so " "
+    -DBoost_INCLUDE_DIR=${INSTALL_DIR}/include " "
+    -DBoost_LIBRARY_DIR_RELEASE=${INSTALL_DIR}/lib/ " "
+    -DBoost_PROGRAM_OPTIONS_LIBRARY_RELEASE=${INSTALL_DIR}/lib/libboost_program_options.so " "
     -DPXR_BUILD_USD_IMAGING=OFF " "
     -DOPENSUBDIV_INCLUDE_DIR=${INSTALL_DIR}/include
     -DOPENSUBDIV_OSDCPU_LIBRARY=${INSTALL_DIR}/lib/libosdCPU.so
     -DOPENSUBDIV_OSDGPU_LIBRARY=${INSTALL_DIR}/lib/libosdGPU.so
+    -DOIIO_BASE_DIR=${INSTALL_DIR}
 )
 
 if (USE_PYTHON)
