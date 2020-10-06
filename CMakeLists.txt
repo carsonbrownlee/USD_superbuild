@@ -193,6 +193,6 @@ build_component(
   VERSION "v20.05"
   URL "https://github.com/PixarAnimationStudios/USD"
   BUILD_ARGS ${USD_ARGS}
-  DEPENDS_ON tbb boost
+  DEPENDS_ON tbb boost OpenEXR OIIO Ptex OpenSubdiv
 )
 
