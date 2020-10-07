@@ -9,7 +9,9 @@ Tested with Arch Linux
 # Building
 
 
-```git clone https://github.com/carsonbrownlee/USD_superbuild.git
+```
+
+git clone https://github.com/carsonbrownlee/USD_superbuild.git
 
 cd USD_superbuild
 
