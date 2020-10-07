@@ -15,6 +15,10 @@ git clone https://github.com/carsonbrownlee/USD_superbuild.git
 
 cd USD_superbuild
 
+mkdir build
+
+cd build
+
 cmake ..
 
 optional (ccmake .. and set options)
