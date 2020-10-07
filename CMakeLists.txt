@@ -167,11 +167,15 @@ set(USD_ARGS
     -DBoost_INCLUDE_DIR=${INSTALL_DIR}/include " "
     -DBoost_LIBRARY_DIR_RELEASE=${INSTALL_DIR}/lib/ " "
     -DBoost_PROGRAM_OPTIONS_LIBRARY_RELEASE=${INSTALL_DIR}/lib/libboost_program_options.so " "
-    -DPXR_BUILD_USD_IMAGING=OFF " "
+    -DPXR_BUILD_USD_IMAGING=ON " "
+    -DPXR_BUILD_USDVIEW=ON " "
+    -DPYSIDEUICBINARY=/usr/bin/python2-pyside-uic " "
     -DOPENSUBDIV_INCLUDE_DIR=${INSTALL_DIR}/include
     -DOPENSUBDIV_OSDCPU_LIBRARY=${INSTALL_DIR}/lib/libosdCPU.so
     -DOPENSUBDIV_OSDGPU_LIBRARY=${INSTALL_DIR}/lib/libosdGPU.so
     -DOIIO_BASE_DIR=${INSTALL_DIR}
+    -DPTEX_INCLUDE_DIR=${INSTALL_DIR}/include
+    -DPTEX_LIBRARY=${INSTALL_DIR}/lib/libPtex.so
 )
 
 if (USE_PYTHON)
@@ -194,5 +198,6 @@ build_component(
   URL "https://github.com/PixarAnimationStudios/USD"
   BUILD_ARGS ${USD_ARGS}
   DEPENDS_ON tbb boost OpenEXR OIIO Ptex OpenSubdiv
+  INSTALL_BINARIES
 )
 

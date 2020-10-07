@@ -61,7 +61,7 @@ endmacro()
 macro(build_component)
   # See cmake_parse_arguments docs to see how args get parsed here:
   #    https://cmake.org/cmake/help/latest/command/cmake_parse_arguments.html
-  set(options CLONE_GIT_REPOSITORY OMIT_FROM_INSTALL)
+  set(options CLONE_GIT_REPOSITORY OMIT_FROM_INSTALL INSTALL_BINARIES)
   set(oneValueArgs NAME VERSION URL)
   set(multiValueArgs BUILD_ARGS DEPENDS_ON)
   cmake_parse_arguments(BUILD_COMPONENT "${options}" "${oneValueArgs}"
@@ -88,6 +88,25 @@ macro(build_component)
     )
   endif()
 
+  set(INSTALL_COMMAND
+      COMMAND make install
+      COMMAND "${CMAKE_COMMAND}" -E copy_directory
+      ${COMPONENT_INSTALL_PATH}/lib/
+      ${installDir}/lib/
+      COMMAND "${CMAKE_COMMAND}" -E copy_directory
+      ${COMPONENT_INSTALL_PATH}/include
+      ${installDir}/include
+  )
+  if (BUILD_COMPONENT_INSTALL_BINARIES)
+      set(INSTALL_COMMAND ${INSTALL_COMMAND} COMMAND "${CMAKE_COMMAND}" -E copy_directory
+      ${COMPONENT_INSTALL_PATH}/bin
+      ${installDir}/bin)
+  endif()
+
+
+  message("install command: " ${INSTALL_COMMAND})
+
+
   # Build the actual component
   ExternalProject_Add(${COMPONENT_NAME}
     PREFIX ${COMPONENT_FULL_NAME}
@@ -109,14 +128,7 @@ macro(build_component)
       -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
       ${BUILD_COMPONENT_BUILD_ARGS}
     BUILD_COMMAND ${DEFAULT_BUILD_COMMAND}
-    INSTALL_COMMAND 
-      COMMAND make install
-      COMMAND "${CMAKE_COMMAND}" -E copy_directory
-      ${COMPONENT_INSTALL_PATH}/lib/
-      ${installDir}/lib/
-      COMMAND "${CMAKE_COMMAND}" -E copy_directory
-      ${COMPONENT_INSTALL_PATH}/include
-      ${installDir}/include
+    INSTALL_COMMAND ${INSTALL_COMMAND}
     BUILD_ALWAYS OFF
   )
 
@@ -126,39 +138,4 @@ macro(build_component)
     )
   endif()
 
-  # Place installed component on CMAKE_PREFIX_PATH for downstream consumption
-  append_cmake_prefix_path(${COMPONENT_INSTALL_PATH})
-
-  # Define extra build target which installs extra scripts
-
-  if(FALSE) #NOT BUILD_COMPONENT_OMIT_FROM_INSTALL)
-    # stash some old values form the component just built above
-    set(BASE_COMPONENT_NAME ${COMPONENT_NAME})
-    set(EXTRAS_INSTALL_PATH ${COMPONENT_INSTALL_PATH})
-
-    # setup vars for the extras target defined below
-    setup_component_path_vars(${COMPONENT_NAME}_extras "")
-
-    if(WIN32)
-      set(PLATFORM_DIR windows)
-    else()
-      set(PLATFORM_DIR linux)
-    endif()
-
-    message("installDir ${installDir}")
-    ExternalProject_Add(${COMPONENT_NAME}
-      PREFIX ${COMPONENT_FULL_NAME}
-      DOWNLOAD_DIR ${COMPONENT_DOWNLOAD_PATH}
-      STAMP_DIR ${COMPONENT_STAMP_PATH}
-      SOURCE_DIR ${COMPONENT_NAME}/source
-      BINARY_DIR ${COMPONENT_BUILD_PATH}
-      DOWNLOAD_COMMAND ""
-      CONFIGURE_COMMAND ""
-      BUILD_COMMAND ""
-      #INSTALL_COMMAND COMMAND "${CMAKE_COMMAND}" -E copy
-      #  ${COMPONENT_INSTALL_PATH}/lib/*
-      #  ${installDir}/lib/
-      BUILD_ALWAYS ON
-    )
-  endif()
 endmacro()
