@@ -49,7 +49,7 @@ option(USE_PYTHON2 "if USE_PYTHON enabled, use python2 instead of python3" FALSE
 ## order defined below is crucial for setting up the cmake environment correctly
 include(get_tbb)
 
-set(INSTALL_DIR ${CMAKE_BINARY_DIR}/install )
+set(INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install )
 
 ##
 ## Boost
@@ -86,7 +86,7 @@ ExternalProject_Add(boost
   BUILD_COMMAND ${BOOST_ARGS}
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND ""
-  INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install
+  INSTALL_DIR ${INSTALL_DIR}
 )
 
 ##
