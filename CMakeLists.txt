@@ -119,7 +119,7 @@ build_component(
   -DUSE_PTEX=OFF
   -DBoost_NO_BOOST_CMAKE=On
   -DBoost_NO_SYSTEM_PATHS=True
- DEPENDS_ON OpenEXR
+ DEPENDS_ON OpenEXR boost
 )
 
 ##
