@@ -104,9 +104,6 @@ macro(build_component)
   endif()
 
 
-  message("install command: " ${INSTALL_COMMAND})
-
-
   # Build the actual component
   ExternalProject_Add(${COMPONENT_NAME}
     PREFIX ${COMPONENT_FULL_NAME}

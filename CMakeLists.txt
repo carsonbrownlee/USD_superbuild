@@ -41,6 +41,7 @@ include(macros_and_options)
 
 option(USE_PYTHON "enable python support" FALSE)
 option(USE_PYTHON2 "if USE_PYTHON enabled, use python2 instead of python3" FALSE)
+option(BUILD_GLEW "build glew" FALSE)
 
 ###############################################################################
 ###############################################################################
@@ -60,8 +61,6 @@ set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost
 if (USE_PYTHON)
   if (USE_PYTHON2)
     find_package(Python2 REQUIRED)
-    message("python: " ${Python2_EXECUTABLE})
-    message("writing file: " ${CMAKE_CURRENT_BINARY_DIR}/source/boost/src/boost/python-config.jam)
     file(
       WRITE ${CMAKE_CURRENT_BINARY_DIR}/source/boost/src/boost/python-config.jam
       "using python : ${Python2_VERSION_MAJOR}.${Python2_VERSION_MINOR} : \"${Python2_EXECUTABLE}\" ;"
@@ -69,7 +68,6 @@ if (USE_PYTHON)
     set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz)
   else()
     find_package(Python3 REQUIRED)
-    message("python: " ${Python3_EXECUTABLE})
     file(
       WRITE ${CMAKE_CURRENT_BINARY_DIR}/source/boost/src/boost/python-config.jam
       "using python : ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR} : \"${Python3_EXECUTABLE}\" ;"
@@ -138,13 +136,15 @@ build_component(
 ## GLEW
 ##
 
-#build_component(
-  #NAME GLEW
-  #VERSION "glew-2.0.0"
-  #URL https://github.com/nigels-com/glew
-  #BUILD_ARGS ""
-  #DEPENDS_ON
-#)
+if (BUILD_GLEW)
+  build_component(
+    NAME GLEW
+    VERSION "glew-2.0.0"
+    URL https://github.com/nigels-com/glew
+    BUILD_ARGS ""
+    DEPENDS_ON
+  )
+endif()
 
 ##
 ## Ptex
@@ -169,7 +169,6 @@ set(USD_ARGS
     -DBoost_PROGRAM_OPTIONS_LIBRARY_RELEASE=${INSTALL_DIR}/lib/libboost_program_options.so " "
     -DPXR_BUILD_USD_IMAGING=ON " "
     -DPXR_BUILD_USDVIEW=ON " "
-    -DPYSIDEUICBINARY=/usr/bin/python2-pyside-uic " "
     -DOPENSUBDIV_INCLUDE_DIR=${INSTALL_DIR}/include
     -DOPENSUBDIV_OSDCPU_LIBRARY=${INSTALL_DIR}/lib/libosdCPU.so
     -DOPENSUBDIV_OSDGPU_LIBRARY=${INSTALL_DIR}/lib/libosdGPU.so
@@ -184,10 +183,16 @@ if (USE_PYTHON)
       set(USD_ARGS ${USD_ARGS} -DPXR_PYTHON_SHEBANG=${Python2_EXECUTABLE} " ")
       set(USD_ARGS ${USD_ARGS} -DPYTHON_EXECUTABLE=${Python2_EXECUTABLE} " ")
       set(USD_ARGS ${USD_ARGS} -DPXR_USE_PYTHON_3=OFF " ")
+      set(PYTHON_EXECUTABLE ${Python2_EXECUTABLE})
     else()
       set(USD_ARGS ${USD_ARGS} -DPXR_PYTHON_SHEBANG=${Python3_EXECUTABLE} " ")
       set(USD_ARGS ${USD_ARGS} -DPXR_USE_PYTHON_3=ON " ")
+      set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
     endif()
+
+    set(PYSIDE_BIN_DIRECTORY /usr/bin/)
+    find_package(PySide REQUIRED)
+    set(USD_ARGS ${USD_ARGS} -DPYSIDEUICBINARY=/usr/bin/python2-pyside-uic " ")
 else()
     set(USD_ARGS ${USD_ARGS} -DPXR_ENABLE_PYTHON_SUPPORT=OFF " ")
 endif()
@@ -200,4 +205,3 @@ build_component(
   DEPENDS_ON tbb boost OpenEXR OIIO Ptex OpenSubdiv
   INSTALL_BINARIES
 )
-
