@@ -43,6 +43,7 @@ include(macros_and_options)
 option(USE_PYTHON "enable python support" TRUE)
 option(USE_PYTHON2 "if USE_PYTHON enabled, use python2 instead of python3" FALSE)
 option(BUILD_GLEW "build glew" FALSE)
+option(BUILD_TBB "build TBB" FALSE)
 
 ###############################################################################
 ###############################################################################
@@ -50,8 +51,9 @@ option(BUILD_GLEW "build glew" FALSE)
 
 ## order defined below is crucial for setting up the cmake environment correctly
 #include(get_tbb)
-
-include(TBB)
+if (BUILD_TBB)
+  include(TBB)
+endif()
 #Boost should have a TBB dependency (check that)
 include(Boost)
 include(Glew)
@@ -68,6 +70,10 @@ include(OpenSubdiv)
 ## USD
 ##
 
+set(USD_DEPENDENCIES 
+  boost OpenEXR OIIO OCIO Ptex OpenSubdiv
+)
+
 set(USD_ARGS
     -DTBB_ROOT=${CMAKE_INSTALL_PREFIX}
     -DBOOST_ROOT=${CMAKE_INSTALL_PREFIX}
@@ -83,6 +89,19 @@ set(USD_ARGS
     -DPXR_ENABLE_PYTHON_SUPPORT= ON
     -DPXR_BUILD_USDVIEW=ON
 )
+
+if (BUILD_TBB)
+  set(USD_ARGS
+    ${USD_ARGS}
+    -DTBB_ROOT=${CMAKE_INSTALL_PREFIX}
+  )
+  set(USD_DEPENDENCIES
+    ${USD_DEPENDENCIES}
+    tbb
+  )
+endif()
+
+
 
 if (USE_PYTHON)
     set(USD_ARGS ${USD_ARGS} -DPXR_ENABLE_PYTHON_SUPPORT=ON " ")
@@ -109,6 +128,6 @@ build_component(
   VERSION "v20.05"
   URL "https://github.com/PixarAnimationStudios/USD"
   BUILD_ARGS ${USD_ARGS}
-  DEPENDS_ON boost OpenEXR OIIO OCIO Ptex OpenSubdiv tbb
+  DEPENDS_ON ${USD_DEPENDENCIES}
   INSTALL_BINARIES
 )

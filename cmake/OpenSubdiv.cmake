@@ -2,14 +2,28 @@
 ## OpenSubdiv
 ##
 
+set(OPENSUBDIV_ARGS
+    -DNO_DOC=ON
+    -DTBB_LOCATION=${CMAKE_INSTALL_PREFIX}
+)
+
+set(OPENSUBDIV_DEPENDENCIES Ptex)
+
+if(BUILD_TBB)
+    set(OPENSUBDIV_ARGS
+        ${OPENSUBDIV_ARGS}
+        -DTBB_LOCATION=${CMAKE_INSTALL_PREFIX}
+    )
+    set(OPENSUBDIV_DEPENDENCIES
+        ${PENSUBDIV_DEPENDENCIES}
+        tbb
+    )
+endif()
+
 build_component(
   NAME OpenSubdiv
   VERSION "v3_4_3"
   URL https://github.com/PixarAnimationStudios/OpenSubdiv
-  BUILD_ARGS
-    -DNO_DOC=ON
-    -DTBB_LOCATION=${CMAKE_INSTALL_PREFIX}
-#    -DPTEX_INCLUDE_DIR=${CMAKE_INSTALL_PREFIX}/include
-#    -DPTEX_LIBRARY=${CMAKE_INSTALL_PREFIX}/lib/libPtex.so
-  DEPENDS_ON Ptex
+  BUILD_ARGS ${OPENSUBDIV_ARGS}
+  DEPENDS_ON ${OPENSUBDIV_DEPENDENCIES}
 )
