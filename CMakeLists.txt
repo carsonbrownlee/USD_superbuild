@@ -21,9 +21,12 @@ cmake_minimum_required(VERSION 3.5)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 if(NOT CMAKE_INSTALL_PREFIX)
+  message(STATUS "CMAKE_INSTALL_PREFIX is not set using ${CMAKE_BINARY_DIR}/install")
   set(CMAKE_INSTALL_PREFIX
       "${CMAKE_BINARY_DIR}/install"
       CACHE STRING "Final install location." FORCE)
+#else()
+#
 endif()
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -50,13 +53,13 @@ option(BUILD_GLEW "build glew" FALSE)
 ## order defined below is crucial for setting up the cmake environment correctly
 #include(get_tbb)
 
-set(INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install )
-
 include(Boost)
 include(Glew)
 include(OpenEXR)
-include(Ptex)
 include(OpenImageIO)
+include(OpenColorIO)
+
+include(Ptex)
 include(OpenSubdiv)
 
 
@@ -74,7 +77,8 @@ set(USD_ARGS
     -DPXR_BUILD_OPENIMAGEIO_PLUGIN=ON
     -DOIIO_LOCATION=${CMAKE_INSTALL_PREFIX}
     -DOPENEXR_LOCATION=${CMAKE_INSTALL_PREFIX}
-    #-DPXR_BUILD_OPENCOLORIO_PLUGIN=ON
+    -DPXR_BUILD_OPENCOLORIO_PLUGIN=ON
+    -DOCIO_LOCATION=${CMAKE_INSTALL_PREFIX}
     #-DPXR_ENABLE_OPENVDB_SUPPORT=ON
     -DPXR_ENABLE_PYTHON_SUPPORT= ON
     -DPXR_BUILD_USDVIEW=ON
@@ -105,6 +109,6 @@ build_component(
   VERSION "v20.05"
   URL "https://github.com/PixarAnimationStudios/USD"
   BUILD_ARGS ${USD_ARGS}
-  DEPENDS_ON boost OpenEXR OIIO Ptex OpenSubdiv
+  DEPENDS_ON boost OpenEXR OIIO OCIO Ptex OpenSubdiv
   INSTALL_BINARIES
 )

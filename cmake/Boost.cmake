@@ -4,7 +4,7 @@
 set (EP_BOOST "boost")
 
 
-set(BOOST_BUILD_COMMAND ./b2 install --layout=tagged --prefix=${INSTALL_DIR} --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-filesystem --with-serialization --with-wave --with-chrono)
+set(BOOST_BUILD_COMMAND ./b2 install --layout=tagged --prefix=${CMAKE_INSTALL_PREFIX} --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-filesystem --with-serialization --with-wave --with-chrono)
 
 set(BOOST_PYTHON_VERSIONS)
 
@@ -44,7 +44,7 @@ ExternalProject_Add (
 
 	LIST_SEPARATOR | # Use the alternate list separator
 
-	CONFIGURE_COMMAND ./bootstrap.sh --prefix=${INSTALL_DIR}
+	CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_INSTALL_PREFIX}
 	BUILD_COMMAND ${BOOST_BUILD_COMMAND}
 	INSTALL_COMMAND ""
 	INSTALL_DIR ${CMAKE_INSTALL_PREFIX}

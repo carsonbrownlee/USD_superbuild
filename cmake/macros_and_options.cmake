@@ -17,7 +17,11 @@ option(INSTALL_IN_SEPARATE_DIRECTORIES
 )
 mark_as_advanced(INSTALL_IN_SEPARATE_DIRECTORIES)
 
-set(installDir ${CMAKE_CURRENT_BINARY_DIR}/install)
+if(NOT CMAKE_INSTALL_PREFIX)
+  set(installDir ${CMAKE_CURRENT_BINARY_DIR}/install)
+else()
+set(installDir ${CMAKE_INSTALL_PREFIX})
+endif()
 
 get_filename_component(INSTALL_DIR_ABSOLUTE
   ${installDir} ABSOLUTE BASE_DIR ${CMAKE_CURRENT_BINARY_DIR})
