@@ -25,8 +25,6 @@ if(NOT CMAKE_INSTALL_PREFIX)
   set(CMAKE_INSTALL_PREFIX
       "${CMAKE_BINARY_DIR}/install"
       CACHE STRING "Final install location." FORCE)
-#else()
-#
 endif()
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -53,6 +51,8 @@ option(BUILD_GLEW "build glew" FALSE)
 ## order defined below is crucial for setting up the cmake environment correctly
 #include(get_tbb)
 
+include(TBB)
+#Boost should have a TBB dependency (check that)
 include(Boost)
 include(Glew)
 include(OpenEXR)
@@ -69,7 +69,7 @@ include(OpenSubdiv)
 ##
 
 set(USD_ARGS
-    #-DTBB_ROOT=${TBB_PATH} " "
+    -DTBB_ROOT=${CMAKE_INSTALL_PREFIX}
     -DBOOST_ROOT=${CMAKE_INSTALL_PREFIX}
     -DBoost_NO_SYSTEM_PATHS=ON
     -DBoost_NO_BOOST_CMAKE=ON
@@ -87,12 +87,12 @@ set(USD_ARGS
 if (USE_PYTHON)
     set(USD_ARGS ${USD_ARGS} -DPXR_ENABLE_PYTHON_SUPPORT=ON " ")
     if (USE_PYTHON2)
-      set(USD_ARGS ${USD_ARGS} -DPXR_PYTHON_SHEBANG=${Python2_EXECUTABLE} " ")
-      set(USD_ARGS ${USD_ARGS} -DPYTHON_EXECUTABLE=${Python2_EXECUTABLE} " ")
+      #set(USD_ARGS ${USD_ARGS} -DPXR_PYTHON_SHEBANG=${Python2_EXECUTABLE} " ")
+      #set(USD_ARGS ${USD_ARGS} -DPYTHON_EXECUTABLE=${Python2_EXECUTABLE} " ")
       set(USD_ARGS ${USD_ARGS} -DPXR_USE_PYTHON_3=OFF " ")
       #set(PYTHON_EXECUTABLE ${Python2_EXECUTABLE})
     else()
-      set(USD_ARGS ${USD_ARGS} -DPXR_PYTHON_SHEBANG=${Python3_EXECUTABLE} " ")
+      #set(USD_ARGS ${USD_ARGS} -DPXR_PYTHON_SHEBANG=${Python3_EXECUTABLE} " ")
       set(USD_ARGS ${USD_ARGS} -DPXR_USE_PYTHON_3=ON " ")
       #set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
     endif()
@@ -109,6 +109,6 @@ build_component(
   VERSION "v20.05"
   URL "https://github.com/PixarAnimationStudios/USD"
   BUILD_ARGS ${USD_ARGS}
-  DEPENDS_ON boost OpenEXR OIIO OCIO Ptex OpenSubdiv
+  DEPENDS_ON boost OpenEXR OIIO OCIO Ptex OpenSubdiv tbb
   INSTALL_BINARIES
 )
