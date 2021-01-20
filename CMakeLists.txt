@@ -44,6 +44,7 @@ option(USE_PYTHON "enable python support" TRUE)
 option(USE_PYTHON2 "if USE_PYTHON enabled, use python2 instead of python3" FALSE)
 option(BUILD_GLEW "build glew" FALSE)
 option(BUILD_TBB "build TBB" FALSE)
+option(BUILD_VDB "build OpenVDB" TRUE)
 
 ###############################################################################
 ###############################################################################
@@ -63,6 +64,11 @@ include(OpenColorIO)
 
 include(Ptex)
 include(OpenSubdiv)
+
+if (BUILD_VDB)
+  include(OpenVDB)
+endif()
+
 
 
 
@@ -85,8 +91,9 @@ set(USD_ARGS
     -DOPENEXR_LOCATION=${CMAKE_INSTALL_PREFIX}
     -DPXR_BUILD_OPENCOLORIO_PLUGIN=ON
     -DOCIO_LOCATION=${CMAKE_INSTALL_PREFIX}
-    #-DPXR_ENABLE_OPENVDB_SUPPORT=ON
+    -DPXR_ENABLE_OPENVDB_SUPPORT=ON
     -DPXR_ENABLE_PYTHON_SUPPORT= ON
+    -DOPENVDB_LOCATION=${CMAKE_INSTALL_PREFIX}
     -DPXR_BUILD_USDVIEW=ON
 )
 
