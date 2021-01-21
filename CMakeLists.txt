@@ -40,73 +40,154 @@ include(GNUInstallDirs)
 include(ProcessorCount)
 include(macros_and_options)
 
-option(USE_PYTHON "enable python support" TRUE)
-option(USE_PYTHON2 "if USE_PYTHON enabled, use python2 instead of python3" FALSE)
-option(BUILD_GLEW "build glew" FALSE)
-option(BUILD_TBB "build TBB" FALSE)
-option(BUILD_VDB "build OpenVDB" TRUE)
+option(USE_PYTHON "enable python support" ON)
+option(USE_PYTHON2 "if USE_PYTHON enabled, use python2 instead of python3" OFF)
+
+
+
+###############################################################################
+#########          Dependency Build Switches                   ################
+###############################################################################
+
+option(BUILD_ALL_DEPS "build ALL dependencies" ON)
+
+option(BUILD_GLEW "build glew"                OFF)
+option(BUILD_TBB "build TBB"                  OFF)
+option(BUILD_VDB "build OpenVDB"              OFF)
+option(BUILD_BOOST "build BOOST"              OFF)
+option(BUILD_OPENEXR "build OpenEXR"          OFF)
+option(BUILD_OPENIMAGEIO "build OpenImageIO"  OFF)
+option(BUILD_OPENCOLORIO "build OpenColorIO"  OFF)
+option(BUILD_PTEX        "build Ptex"          ON)
+option(BUILD_OPENSUBDIV  "build OpenSubdiv"    ON)
+
+if(BUILD_ALL_DEPS)
+#  set(BUILD_GLEW ON)
+  set(BUILD_TBB         ON)
+  set(BUILD_VDB         ON)
+  set(BUILD_BOOST       ON)
+  set(BUILD_OPENEXR     ON)
+  set(BUILD_OPENIMAGEIO ON)
+  set(BUILD_OPENCOLORIO ON)
+  set(BUILD_PTEX        ON)
+  set(BUILD_OPENSUBDIV ON)
+endif()
+
+
+###############################################################################
+#########          USD PXR OPTIONS                             ################
+###############################################################################
+
+# option(PXR_STRICT_BUILD_MODE "Turn on additional warnings. Enforce all warnings as errors." OFF)
+# option(PXR_VALIDATE_GENERATED_CODE "Validate script generated code" OFF)
+# option(PXR_HEADLESS_TEST_MODE "Disallow GUI based tests, useful for running under headless CI systems." OFF)
+# option(PXR_BUILD_TESTS "Build tests" ON)
+# option(PXR_BUILD_EXAMPLES "Build examples" ON)
+# option(PXR_BUILD_TUTORIALS "Build tutorials" ON)
+# option(PXR_BUILD_USD_TOOLS "Build commandline tools" ON)
+# option(PXR_BUILD_IMAGING "Build imaging components" ON)
+# option(PXR_BUILD_EMBREE_PLUGIN "Build embree imaging plugin" OFF)
+# option(PXR_BUILD_OPENIMAGEIO_PLUGIN "Build OpenImageIO plugin" OFF)
+# option(PXR_BUILD_OPENCOLORIO_PLUGIN "Build OpenColorIO plugin" OFF)
+# option(PXR_BUILD_USD_IMAGING "Build USD imaging components" ON)
+# option(PXR_BUILD_USDVIEW "Build usdview" ON)
+# option(PXR_BUILD_ALEMBIC_PLUGIN "Build the Alembic plugin for USD" OFF)
+# option(PXR_BUILD_DRACO_PLUGIN "Build the Draco plugin for USD" OFF)
+# option(PXR_BUILD_PRMAN_PLUGIN "Build the PRMan imaging plugin" OFF)
+# option(PXR_BUILD_MATERIALX_PLUGIN "Build the MaterialX plugin for USD" OFF)
+# option(PXR_BUILD_DOCUMENTATION "Generate doxygen documentation" OFF)
+# option(PXR_ENABLE_GL_SUPPORT "Enable OpenGL based components" ON)
+# option(PXR_ENABLE_PYTHON_SUPPORT "Enable Python based components for USD" ON)
+# option(PXR_USE_PYTHON_3 "Build Python bindings for Python 3" OFF)
+# option(PXR_ENABLE_HDF5_SUPPORT "Enable HDF5 backend in the Alembic plugin for USD" ON)
+# option(PXR_ENABLE_OSL_SUPPORT "Enable OSL (OpenShadingLanguage) based components" OFF)
+# option(PXR_ENABLE_PTEX_SUPPORT "Enable Ptex support" ON)
+# option(PXR_ENABLE_OPENVDB_SUPPORT "Enable OpenVDB support" OFF)
+# option(PXR_ENABLE_NAMESPACES "Enable C++ namespaces." ON)
 
 ###############################################################################
 ###############################################################################
 ###############################################################################
+
+set(USD_DEPENDENCIES "")
+
+set(USD_ARGS
+    -DPXR_BUILD_USD_IMAGING=ON
+    -DPXR_BUILD_OPENIMAGEIO_PLUGIN=ON
+    -DPXR_BUILD_OPENCOLORIO_PLUGIN=ON
+    -DPXR_ENABLE_OPENVDB_SUPPORT=ON
+    -DPXR_BUILD_USDVIEW=ON
+#    -DPXR_ENABLE_VULKAN_SUPPORT=ON
+)
 
 ## order defined below is crucial for setting up the cmake environment correctly
 #include(get_tbb)
 if (BUILD_TBB)
   include(TBB)
+  set(USD_ARGS ${USD_ARGS}
+    -DTBB_ROOT=${CMAKE_INSTALL_PREFIX}
+  )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} tbb)
 endif()
 #Boost should have a TBB dependency (check that)
-include(Boost)
-include(Glew)
-include(OpenEXR)
-include(OpenImageIO)
-include(OpenColorIO)
+if (BUILD_BOOST)
+  include(Boost)
+  set(USD_ARGS ${USD_ARGS}
+    -DBOOST_ROOT=${CMAKE_INSTALL_PREFIX}
+    -DBoost_NO_SYSTEM_PATHS=ON
+    -DBoost_NO_BOOST_CMAKE=ON
+  )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} boost)
+endif()
 
-include(Ptex)
-include(OpenSubdiv)
+include(Glew)
+
+if (BUILD_OPENEXR)
+  include(OpenEXR)
+  set(USD_ARGS ${USD_ARGS}
+    -DOPENEXR_LOCATION=${CMAKE_INSTALL_PREFIX}
+  )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OpenEXR)
+endif()
+
+if (BUILD_OPENIMAGEIO)
+  include(OpenImageIO)
+  set(USD_ARGS ${USD_ARGS}
+    -DOIIO_LOCATION=${CMAKE_INSTALL_PREFIX}
+  )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OIIO)
+endif()
+
+if(BUILD_OPENCOLORIO)
+  include(OpenColorIO)
+  set(USD_ARGS ${USD_ARGS}
+    -DOCIO_LOCATION=${CMAKE_INSTALL_PREFIX}
+  )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OCIO)
+endif()
+
+if(BUILD_PTEX)
+  include(Ptex)
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} Ptex)
+endif()
+
+if(BUILD_OPENSUBDIV)
+  include(OpenSubdiv)
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OpenSubdiv)
+endif()
 
 if (BUILD_VDB)
   include(OpenVDB)
+  set(USD_ARGS ${USD_ARGS}
+    -DOPENVDB_LOCATION=${CMAKE_INSTALL_PREFIX}
+  )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OpenVDB)
 endif()
-
-
-
 
 ##
 ## USD
 ##
 
-set(USD_DEPENDENCIES 
-  boost OpenEXR OIIO OCIO Ptex OpenSubdiv
-)
-
-set(USD_ARGS
-    -DTBB_ROOT=${CMAKE_INSTALL_PREFIX}
-    -DBOOST_ROOT=${CMAKE_INSTALL_PREFIX}
-    -DBoost_NO_SYSTEM_PATHS=ON
-    -DBoost_NO_BOOST_CMAKE=ON
-    -DPXR_BUILD_USD_IMAGING=ON
-    -DPXR_BUILD_OPENIMAGEIO_PLUGIN=ON
-    -DOIIO_LOCATION=${CMAKE_INSTALL_PREFIX}
-    -DOPENEXR_LOCATION=${CMAKE_INSTALL_PREFIX}
-    -DPXR_BUILD_OPENCOLORIO_PLUGIN=ON
-    -DOCIO_LOCATION=${CMAKE_INSTALL_PREFIX}
-    -DPXR_ENABLE_OPENVDB_SUPPORT=ON
-    -DPXR_ENABLE_PYTHON_SUPPORT= ON
-    -DOPENVDB_LOCATION=${CMAKE_INSTALL_PREFIX}
-    -DPXR_BUILD_USDVIEW=ON
-)
-
-if (BUILD_TBB)
-  set(USD_ARGS
-    ${USD_ARGS}
-    -DTBB_ROOT=${CMAKE_INSTALL_PREFIX}
-  )
-  set(USD_DEPENDENCIES
-    ${USD_DEPENDENCIES}
-    tbb
-  )
-endif()
 
 
 
@@ -132,7 +213,8 @@ endif()
 
 build_component(
   NAME USD
-  VERSION "v20.05"
+  VERSION "v21.02"
+#  VERSION "v20.05"
   URL "https://github.com/PixarAnimationStudios/USD"
   BUILD_ARGS ${USD_ARGS}
   DEPENDS_ON ${USD_DEPENDENCIES}
