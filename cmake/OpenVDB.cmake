@@ -15,7 +15,7 @@ set(OpenVDB_DEPENDENCIES "")
 if(BUILD_TBB)
     set(OpenVDB_ARGS
         ${OpenVDB_ARGS}
-        -DTBB_LOCATION=${CMAKE_INSTALL_PREFIX}
+        -DTBB_ROOT=${CMAKE_INSTALL_PREFIX}
     )
     set(OpenVDB_DEPENDENCIES
         ${OpenVDB_DEPENDENCIES}
