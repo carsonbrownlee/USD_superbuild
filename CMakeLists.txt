@@ -87,13 +87,13 @@ endif()
 # option(PXR_BUILD_USD_TOOLS "Build commandline tools" ON)
 # option(PXR_BUILD_IMAGING "Build imaging components" ON)
 # option(PXR_BUILD_EMBREE_PLUGIN "Build embree imaging plugin" OFF)
-# option(PXR_BUILD_OPENIMAGEIO_PLUGIN "Build OpenImageIO plugin" OFF)
-# option(PXR_BUILD_OPENCOLORIO_PLUGIN "Build OpenColorIO plugin" OFF)
-# option(PXR_BUILD_USD_IMAGING "Build USD imaging components" ON)
-# option(PXR_BUILD_USDVIEW "Build usdview" ON)
+option(PXR_BUILD_OPENIMAGEIO_PLUGIN "Build OpenImageIO plugin" ON)
+option(PXR_BUILD_OPENCOLORIO_PLUGIN "Build OpenColorIO plugin" ON)
+option(PXR_BUILD_USD_IMAGING "Build USD imaging components" ON)
+option(PXR_BUILD_USDVIEW "Build usdview" ON)
 # option(PXR_BUILD_ALEMBIC_PLUGIN "Build the Alembic plugin for USD" OFF)
 # option(PXR_BUILD_DRACO_PLUGIN "Build the Draco plugin for USD" OFF)
-# option(PXR_BUILD_PRMAN_PLUGIN "Build the PRMan imaging plugin" OFF)
+option(PXR_BUILD_PRMAN_PLUGIN "Build the PRMan imaging plugin" ON)
 # option(PXR_BUILD_MATERIALX_PLUGIN "Build the MaterialX plugin for USD" OFF)
 # option(PXR_BUILD_DOCUMENTATION "Generate doxygen documentation" OFF)
 # option(PXR_ENABLE_GL_SUPPORT "Enable OpenGL based components" ON)
@@ -101,8 +101,8 @@ endif()
 # option(PXR_USE_PYTHON_3 "Build Python bindings for Python 3" OFF)
 # option(PXR_ENABLE_HDF5_SUPPORT "Enable HDF5 backend in the Alembic plugin for USD" ON)
 # option(PXR_ENABLE_OSL_SUPPORT "Enable OSL (OpenShadingLanguage) based components" OFF)
-# option(PXR_ENABLE_PTEX_SUPPORT "Enable Ptex support" ON)
-# option(PXR_ENABLE_OPENVDB_SUPPORT "Enable OpenVDB support" OFF)
+option(PXR_ENABLE_PTEX_SUPPORT "Enable Ptex support" ON)
+option(PXR_ENABLE_OPENVDB_SUPPORT "Enable OpenVDB support" ON)
 # option(PXR_ENABLE_NAMESPACES "Enable C++ namespaces." ON)
 
 ###############################################################################
@@ -112,12 +112,14 @@ endif()
 set(USD_DEPENDENCIES "")
 
 set(USD_ARGS
-    -DPXR_BUILD_USD_IMAGING=ON
-    -DPXR_BUILD_OPENIMAGEIO_PLUGIN=ON
-    -DPXR_BUILD_OPENCOLORIO_PLUGIN=ON
-    -DPXR_ENABLE_OPENVDB_SUPPORT=ON
-    -DPXR_BUILD_USDVIEW=ON
-#    -DPXR_ENABLE_VULKAN_SUPPORT=ON
+    -DPXR_BUILD_USD_IMAGING=${PXR_BUILD_USD_IMAGING}
+    -DPXR_BUILD_OPENIMAGEIO_PLUGIN=${PXR_BUILD_OPENIMAGEIO_PLUGIN}
+    -DPXR_BUILD_OPENCOLORIO_PLUGIN=${PXR_BUILD_OPENCOLORIO_PLUGIN}
+    -DPXR_ENABLE_OPENVDB_SUPPORT=${PXR_ENABLE_OPENVDB_SUPPORT}
+    -DPXR_BUILD_USDVIEW=${PXR_BUILD_USDVIEW}
+    #-DPXR_ENABLE_VULKAN_SUPPORT=ON
+    -DPXR_ENABLE_PTEX_SUPPORT=${PXR_ENABLE_PTEX_SUPPORT}
+    -DPXR_BUILD_PRMAN_PLUGIN=${PXR_BUILD_PRMAN_PLUGIN}
 )
 
 ## order defined below is crucial for setting up the cmake environment correctly
@@ -188,33 +190,21 @@ endif()
 ## USD
 ##
 
-
-
-
 if (USE_PYTHON)
     set(USD_ARGS ${USD_ARGS} -DPXR_ENABLE_PYTHON_SUPPORT=ON " ")
     if (USE_PYTHON2)
-      #set(USD_ARGS ${USD_ARGS} -DPXR_PYTHON_SHEBANG=${Python2_EXECUTABLE} " ")
-      #set(USD_ARGS ${USD_ARGS} -DPYTHON_EXECUTABLE=${Python2_EXECUTABLE} " ")
       set(USD_ARGS ${USD_ARGS} -DPXR_USE_PYTHON_3=OFF " ")
-      #set(PYTHON_EXECUTABLE ${Python2_EXECUTABLE})
     else()
-      #set(USD_ARGS ${USD_ARGS} -DPXR_PYTHON_SHEBANG=${Python3_EXECUTABLE} " ")
       set(USD_ARGS ${USD_ARGS} -DPXR_USE_PYTHON_3=ON " ")
-      #set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
     endif()
-
-    #set(PYSIDE_BIN_DIRECTORY /usr/bin/)
-    #find_package(PySide REQUIRED)
-    #set(USD_ARGS ${USD_ARGS} -DPYSIDEUICBINARY=/usr/bin/python2-pyside-uic " ")
 else()
     set(USD_ARGS ${USD_ARGS} -DPXR_ENABLE_PYTHON_SUPPORT=OFF " ")
 endif()
 
 build_component(
   NAME USD
-  VERSION "v21.02"
-#  VERSION "v20.05"
+#  VERSION "v21.02"
+  VERSION "v20.11"
   URL "https://github.com/PixarAnimationStudios/USD"
   BUILD_ARGS ${USD_ARGS}
   DEPENDS_ON ${USD_DEPENDENCIES}
