@@ -93,7 +93,7 @@ option(PXR_BUILD_USD_IMAGING "Build USD imaging components" ON)
 option(PXR_BUILD_USDVIEW "Build usdview" ON)
 # option(PXR_BUILD_ALEMBIC_PLUGIN "Build the Alembic plugin for USD" OFF)
 # option(PXR_BUILD_DRACO_PLUGIN "Build the Draco plugin for USD" OFF)
-option(PXR_BUILD_PRMAN_PLUGIN "Build the PRMan imaging plugin" ON)
+option(PXR_BUILD_PRMAN_PLUGIN "Build the PRMan imaging plugin" OFF)
 # option(PXR_BUILD_MATERIALX_PLUGIN "Build the MaterialX plugin for USD" OFF)
 # option(PXR_BUILD_DOCUMENTATION "Generate doxygen documentation" OFF)
 # option(PXR_ENABLE_GL_SUPPORT "Enable OpenGL based components" ON)
@@ -105,8 +105,26 @@ option(PXR_ENABLE_PTEX_SUPPORT "Enable Ptex support" ON)
 option(PXR_ENABLE_OPENVDB_SUPPORT "Enable OpenVDB support" ON)
 # option(PXR_ENABLE_NAMESPACES "Enable C++ namespaces." ON)
 
+
 ###############################################################################
+#########  UPDATE DEPENDENCY BUILDS BASED ON USD PXR OPTIONS   ################
 ###############################################################################
+
+if (NOT PXR_BUILD_OPENCOLORIO_PLUGIN)
+  set(BUILD_OPENCOLORIO OFF)
+endif()
+
+if (NOT PXR_ENABLE_PTEX_SUPPORT)
+  set(BUILD_PTEX OFF)
+endif()
+
+if (NOT PXR_ENABLE_OPENVDB_SUPPORT)
+  set(BUILD_VDB OFF)
+endif()
+
+
+###############################################################################
+#########  SETUP USD CMAKE                                     ################
 ###############################################################################
 
 set(USD_DEPENDENCIES "")
@@ -204,7 +222,8 @@ endif()
 build_component(
   NAME USD
 #  VERSION "v21.02"
-  VERSION "v20.11"
+#  VERSION "v20.11"
+  VERSION "v20.05"
   URL "https://github.com/PixarAnimationStudios/USD"
   BUILD_ARGS ${USD_ARGS}
   DEPENDS_ON ${USD_DEPENDENCIES}
