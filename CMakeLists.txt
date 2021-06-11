@@ -18,6 +18,8 @@
 
 cmake_minimum_required(VERSION 3.5)
 
+SET (CMAKE_VERBOSE_MAKEFILE ON)
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 if(NOT CMAKE_INSTALL_PREFIX)
@@ -223,7 +225,8 @@ build_component(
   NAME USD
 #  VERSION "v21.02"
 #  VERSION "v20.11"
-  VERSION "v20.05"
+  VERSION "v20.08"
+#  VERSION "v20.05"
   URL "https://github.com/PixarAnimationStudios/USD"
   BUILD_ARGS ${USD_ARGS}
   DEPENDS_ON ${USD_DEPENDENCIES}
