@@ -104,7 +104,7 @@ option(PXR_BUILD_PRMAN_PLUGIN "Build the PRMan imaging plugin" OFF)
 # option(PXR_ENABLE_HDF5_SUPPORT "Enable HDF5 backend in the Alembic plugin for USD" ON)
 # option(PXR_ENABLE_OSL_SUPPORT "Enable OSL (OpenShadingLanguage) based components" OFF)
 option(PXR_ENABLE_PTEX_SUPPORT "Enable Ptex support" ON)
-option(PXR_ENABLE_OPENVDB_SUPPORT "Enable OpenVDB support" ON)
+option(PXR_ENABLE_OPENVDB_SUPPORT "Enable OpenVDB support" OFF)
 # option(PXR_ENABLE_NAMESPACES "Enable C++ namespaces." ON)
 
 
@@ -221,14 +221,48 @@ else()
     set(USD_ARGS ${USD_ARGS} -DPXR_ENABLE_PYTHON_SUPPORT=OFF " ")
 endif()
 
-build_component(
-  NAME USD
+#build_component(
+#  NAME USD
 #  VERSION "v21.02"
 #  VERSION "v20.11"
-  VERSION "v20.08"
+#  VERSION "v20.08"
 #  VERSION "v20.05"
-  URL "https://github.com/PixarAnimationStudios/USD"
-  BUILD_ARGS ${USD_ARGS}
-  DEPENDS_ON ${USD_DEPENDENCIES}
-  INSTALL_BINARIES
+#  URL "https://github.com/PixarAnimationStudios/USD"
+#  BUILD_ARGS ${USD_ARGS}
+#  DEPENDS_ON ${USD_DEPENDENCIES}
+#  INSTALL_BINARIES
+#)
+
+
+
+SET(USD_VERSION v20.08)
+
+SET(EP_USD "USD")
+ExternalProject_Add (
+	${EP_USD}
+	
+	PREFIX        ${EP_USD}
+	DOWNLOAD_DIR  ${EP_USD}
+	STAMP_DIR     ${EP_USD}/stamp
+	SOURCE_DIR    ${EP_USD}/source
+	BINARY_DIR    ${EP_USD}/build
+	GIT_REPOSITORY "https://github.com/PixarAnimationStudios/USD"
+	GIT_TAG       ${USD_VERSION}
+	GIT_SHALLOW   ON
+	
+	BUILD_ALWAYS  ON
+	#INSTALL_DIR    ${INSTALL_DIR}
+	
+	LIST_SEPARATOR | # Use the alternate list separator
+	CMAKE_ARGS
+		-DCMAKE_BUILD_TYPE=Release
+		-DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
+		${USD_ARGS}
+	#BUILD_COMMAND ${HDBLACKBIRD_BUILD_COMMAND}
+	#PATCH_COMMAND patch ${CMAKE_BINARY_DIR}/${HDBLACKBIRD_SOURCE_PATH}/src/cmake/modules/FindOpenEXR.cmake < ${CMAKE_SOURCE_DIR}/patches/HDBLACKBIRD_FindOpenEXR.patch
+	BUILD_ALWAYS OFF
 )
+
+ExternalProject_Add_StepDependencies(${EP_USD}
+      configure ${USD_DEPENDENCIES}
+    )
