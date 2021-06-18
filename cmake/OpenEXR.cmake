@@ -4,6 +4,7 @@
 
 set(OpenEXR_ARGS ""
   -DPYILMBASE_ENABLE=OFF
+  -DOPENEXR_VIEWERS_ENABLE=OFF
   #-DBOOST_ROOT=${CMAKE_INSTALL_PREFIX}  #only needed if python libs are build
 )
 
