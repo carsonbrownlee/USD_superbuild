@@ -12,22 +12,16 @@ if (USE_PYTHON)
   message("writing file: " ${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam)
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam)
   if (USE_PYTHON2)
-    find_package(Python2 REQUIRED)
-    message("python: " ${Python2_EXECUTABLE})
-    file(
-      APPEND ${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam
-      "using python : ${Python2_VERSION_MAJOR}.${Python2_VERSION_MINOR} : \"${Python2_EXECUTABLE}\" ; \n"
-    )
-    list(APPEND BOOST_PYTHON_VERSIONS "${Python2_VERSION_MAJOR}.${Python2_VERSION_MINOR}")
-  else ()
-  find_package(Python3 REQUIRED)
-    message("python: " ${Python3_EXECUTABLE})
-    file(
-      APPEND ${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam
-      "using python : ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR} : \"${Python3_EXECUTABLE}\" ; \n"
-    )
-    list(APPEND BOOST_PYTHON_VERSIONS "${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}")
+    find_package(PythonInterp 2.7 REQUIRED)
+  else()
+    find_package(PythonInterp 3.0 REQUIRED)
   endif()
+  message("python: " ${PYTHON_EXECUTABLE})
+  file(
+    APPEND ${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam
+    "using python : ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR} : \"${PYTHON_EXECUTABLE}\" ; \n"
+  )
+  list(APPEND BOOST_PYTHON_VERSIONS "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
   list(JOIN BOOST_PYTHON_VERSIONS "," BOOST_PYTHON_VERSIONS)
 
   set(BOOST_BUILD_COMMAND ${BOOST_BUILD_COMMAND}  --user-config=${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam python=${BOOST_PYTHON_VERSIONS} --with-python)
