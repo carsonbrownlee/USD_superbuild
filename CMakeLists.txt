@@ -62,6 +62,7 @@ option(BUILD_OPENIMAGEIO "build OpenImageIO"  OFF)
 option(BUILD_OPENCOLORIO "build OpenColorIO"  OFF)
 option(BUILD_PTEX        "build Ptex"          ON)
 option(BUILD_OPENSUBDIV  "build OpenSubdiv"    ON)
+option(BUILD_USD "Build USD" ON)
 
 if(BUILD_ALL_DEPS)
 #  set(BUILD_GLEW ON)
@@ -237,32 +238,34 @@ endif()
 
 SET(USD_VERSION v20.08)
 
-SET(EP_USD "USD")
-ExternalProject_Add (
-	${EP_USD}
-	
-	PREFIX        ${EP_USD}
-	DOWNLOAD_DIR  ${EP_USD}
-	STAMP_DIR     ${EP_USD}/stamp
-	SOURCE_DIR    ${EP_USD}/source
-	BINARY_DIR    ${EP_USD}/build
-	GIT_REPOSITORY "https://github.com/PixarAnimationStudios/USD"
-	GIT_TAG       ${USD_VERSION}
-	GIT_SHALLOW   ON
-	
-	BUILD_ALWAYS  ON
-	#INSTALL_DIR    ${INSTALL_DIR}
-	
-	LIST_SEPARATOR | # Use the alternate list separator
-	CMAKE_ARGS
-		-DCMAKE_BUILD_TYPE=Release
-		-DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
-		${USD_ARGS}
-	#BUILD_COMMAND ${HDBLACKBIRD_BUILD_COMMAND}
-	#PATCH_COMMAND patch ${CMAKE_BINARY_DIR}/${HDBLACKBIRD_SOURCE_PATH}/src/cmake/modules/FindOpenEXR.cmake < ${CMAKE_SOURCE_DIR}/patches/HDBLACKBIRD_FindOpenEXR.patch
-	BUILD_ALWAYS OFF
-)
+if (BUILD_USD)
+  SET(EP_USD "USD")
+  ExternalProject_Add (
+    ${EP_USD}
+    
+    PREFIX        ${EP_USD}
+    DOWNLOAD_DIR  ${EP_USD}
+    STAMP_DIR     ${EP_USD}/stamp
+    SOURCE_DIR    ${EP_USD}/source
+    BINARY_DIR    ${EP_USD}/build
+    GIT_REPOSITORY "https://github.com/PixarAnimationStudios/USD"
+    GIT_TAG       ${USD_VERSION}
+    GIT_SHALLOW   ON
+    
+    BUILD_ALWAYS  ON
+    #INSTALL_DIR    ${INSTALL_DIR}
+    
+    LIST_SEPARATOR | # Use the alternate list separator
+    CMAKE_ARGS
+      -DCMAKE_BUILD_TYPE=Release
+      -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
+      ${USD_ARGS}
+    #BUILD_COMMAND ${HDBLACKBIRD_BUILD_COMMAND}
+    #PATCH_COMMAND patch ${CMAKE_BINARY_DIR}/${HDBLACKBIRD_SOURCE_PATH}/src/cmake/modules/FindOpenEXR.cmake < ${CMAKE_SOURCE_DIR}/patches/HDBLACKBIRD_FindOpenEXR.patch
+    BUILD_ALWAYS OFF
+  )
 
-ExternalProject_Add_StepDependencies(${EP_USD}
-      configure ${USD_DEPENDENCIES}
-    )
+  ExternalProject_Add_StepDependencies(${EP_USD}
+        configure ${USD_DEPENDENCIES}
+      )
+endif()
