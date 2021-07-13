@@ -29,18 +29,18 @@ if (USE_PYTHON)
 endif()
 
 ExternalProject_Add (
-	${EP_BOOST}
+  ${EP_BOOST}
 
-	PREFIX         ${EP_BOOST}/source/boost
-	BUILD_IN_SOURCE 1
-	URL https://downloads.sourceforge.net/project/boost/boost/1.67.0/boost_1_67_0.tar.gz
-	BUILD_ALWAYS   OFF
+  PREFIX         ${EP_BOOST}/source/boost
+  BUILD_IN_SOURCE 1
+  URL https://boostorg.jfrog.io/artifactory/main/release/1.67.0/source/boost_1_67_0.tar.gz
+  BUILD_ALWAYS   OFF
 
-	LIST_SEPARATOR | # Use the alternate list separator
+  LIST_SEPARATOR | # Use the alternate list separator
 
-	CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_INSTALL_PREFIX}
-	BUILD_COMMAND ${BOOST_BUILD_COMMAND}
-	INSTALL_COMMAND ""
-	INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+  CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_INSTALL_PREFIX}
+  BUILD_COMMAND ${BOOST_BUILD_COMMAND}
+  INSTALL_COMMAND ""
+  INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
 )
 
