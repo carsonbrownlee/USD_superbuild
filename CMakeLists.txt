@@ -222,20 +222,6 @@ else()
     set(USD_ARGS ${USD_ARGS} -DPXR_ENABLE_PYTHON_SUPPORT=OFF " ")
 endif()
 
-#build_component(
-#  NAME USD
-#  VERSION "v21.02"
-#  VERSION "v20.11"
-#  VERSION "v20.08"
-#  VERSION "v20.05"
-#  URL "https://github.com/PixarAnimationStudios/USD"
-#  BUILD_ARGS ${USD_ARGS}
-#  DEPENDS_ON ${USD_DEPENDENCIES}
-#  INSTALL_BINARIES
-#)
-
-
-
 SET(USD_VERSION v20.08)
 
 if (BUILD_USD)
@@ -253,15 +239,12 @@ if (BUILD_USD)
     GIT_SHALLOW   ON
     
     BUILD_ALWAYS  ON
-    #INSTALL_DIR    ${INSTALL_DIR}
     
     LIST_SEPARATOR | # Use the alternate list separator
     CMAKE_ARGS
       -DCMAKE_BUILD_TYPE=Release
       -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
       ${USD_ARGS}
-    #BUILD_COMMAND ${HDBLACKBIRD_BUILD_COMMAND}
-    #PATCH_COMMAND patch ${CMAKE_BINARY_DIR}/${HDBLACKBIRD_SOURCE_PATH}/src/cmake/modules/FindOpenEXR.cmake < ${CMAKE_SOURCE_DIR}/patches/HDBLACKBIRD_FindOpenEXR.patch
     BUILD_ALWAYS OFF
   )
 
