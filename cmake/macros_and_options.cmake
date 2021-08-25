@@ -13,11 +13,15 @@ endif()
 
 option(INSTALL_IN_SEPARATE_DIRECTORIES
   "Install libraries into their own directories under CMAKE_INSTALL_PREFIX"
-  ON
+  OFF
 )
 mark_as_advanced(INSTALL_IN_SEPARATE_DIRECTORIES)
 
-set(installDir ${CMAKE_CURRENT_BINARY_DIR}/install)
+if(NOT CMAKE_INSTALL_PREFIX)
+  set(installDir ${CMAKE_CURRENT_BINARY_DIR}/install)
+else()
+set(installDir ${CMAKE_INSTALL_PREFIX})
+endif()
 
 get_filename_component(INSTALL_DIR_ABSOLUTE
   ${installDir} ABSOLUTE BASE_DIR ${CMAKE_CURRENT_BINARY_DIR})
@@ -125,7 +129,7 @@ macro(build_component)
       -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
       ${BUILD_COMPONENT_BUILD_ARGS}
     BUILD_COMMAND ${DEFAULT_BUILD_COMMAND}
-    INSTALL_COMMAND ${INSTALL_COMMAND}
+    #INSTALL_COMMAND ${INSTALL_COMMAND}
     BUILD_ALWAYS OFF
   )
 

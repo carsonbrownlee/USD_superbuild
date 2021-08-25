@@ -21,6 +21,7 @@ cmake_minimum_required(VERSION 3.5)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 if(NOT CMAKE_INSTALL_PREFIX)
+  message(STATUS "CMAKE_INSTALL_PREFIX is not set using ${CMAKE_BINARY_DIR}/install")
   set(CMAKE_INSTALL_PREFIX
       "${CMAKE_BINARY_DIR}/install"
       CACHE STRING "Final install location." FORCE)
@@ -39,169 +40,192 @@ include(GNUInstallDirs)
 include(ProcessorCount)
 include(macros_and_options)
 
-option(USE_PYTHON "enable python support" FALSE)
-option(USE_PYTHON2 "if USE_PYTHON enabled, use python2 instead of python3" FALSE)
-option(BUILD_GLEW "build glew" FALSE)
+option(USE_PYTHON "enable python support" ON)
+option(USE_PYTHON2 "if USE_PYTHON enabled, use python2 instead of python3" OFF)
+
+
 
 ###############################################################################
+#########          Dependency Build Switches                   ################
 ###############################################################################
+
+option(BUILD_ALL_DEPS "build ALL dependencies" ON)
+
+option(BUILD_GLEW "build glew"                OFF)
+option(BUILD_TBB "build TBB"                  OFF)
+option(BUILD_VDB "build OpenVDB"              OFF)
+option(BUILD_BOOST "build BOOST"              OFF)
+option(BUILD_OPENEXR "build OpenEXR"          OFF)
+option(BUILD_OPENIMAGEIO "build OpenImageIO"  OFF)
+option(BUILD_OPENCOLORIO "build OpenColorIO"  OFF)
+option(BUILD_PTEX        "build Ptex"          ON)
+option(BUILD_OPENSUBDIV  "build OpenSubdiv"    ON)
+
+if(BUILD_ALL_DEPS)
+#  set(BUILD_GLEW ON)
+  set(BUILD_TBB         ON)
+  set(BUILD_VDB         ON)
+  set(BUILD_BOOST       ON)
+  set(BUILD_OPENEXR     ON)
+  set(BUILD_OPENIMAGEIO ON)
+  set(BUILD_OPENCOLORIO ON)
+  set(BUILD_PTEX        ON)
+  set(BUILD_OPENSUBDIV ON)
+endif()
+
+
 ###############################################################################
+#########          USD PXR OPTIONS                             ################
+###############################################################################
+
+# option(PXR_STRICT_BUILD_MODE "Turn on additional warnings. Enforce all warnings as errors." OFF)
+# option(PXR_VALIDATE_GENERATED_CODE "Validate script generated code" OFF)
+# option(PXR_HEADLESS_TEST_MODE "Disallow GUI based tests, useful for running under headless CI systems." OFF)
+# option(PXR_BUILD_TESTS "Build tests" ON)
+# option(PXR_BUILD_EXAMPLES "Build examples" ON)
+# option(PXR_BUILD_TUTORIALS "Build tutorials" ON)
+# option(PXR_BUILD_USD_TOOLS "Build commandline tools" ON)
+# option(PXR_BUILD_IMAGING "Build imaging components" ON)
+# option(PXR_BUILD_EMBREE_PLUGIN "Build embree imaging plugin" OFF)
+option(PXR_BUILD_OPENIMAGEIO_PLUGIN "Build OpenImageIO plugin" ON)
+option(PXR_BUILD_OPENCOLORIO_PLUGIN "Build OpenColorIO plugin" OFF)
+option(PXR_BUILD_USD_IMAGING "Build USD imaging components" ON)
+option(PXR_BUILD_USDVIEW "Build usdview" ON)
+# option(PXR_BUILD_ALEMBIC_PLUGIN "Build the Alembic plugin for USD" OFF)
+# option(PXR_BUILD_DRACO_PLUGIN "Build the Draco plugin for USD" OFF)
+option(PXR_BUILD_PRMAN_PLUGIN "Build the PRMan imaging plugin" OFF)
+# option(PXR_BUILD_MATERIALX_PLUGIN "Build the MaterialX plugin for USD" OFF)
+# option(PXR_BUILD_DOCUMENTATION "Generate doxygen documentation" OFF)
+# option(PXR_ENABLE_GL_SUPPORT "Enable OpenGL based components" ON)
+# option(PXR_ENABLE_PYTHON_SUPPORT "Enable Python based components for USD" ON)
+# option(PXR_USE_PYTHON_3 "Build Python bindings for Python 3" OFF)
+# option(PXR_ENABLE_HDF5_SUPPORT "Enable HDF5 backend in the Alembic plugin for USD" ON)
+# option(PXR_ENABLE_OSL_SUPPORT "Enable OSL (OpenShadingLanguage) based components" OFF)
+option(PXR_ENABLE_PTEX_SUPPORT "Enable Ptex support" ON)
+option(PXR_ENABLE_OPENVDB_SUPPORT "Enable OpenVDB support" ON)
+# option(PXR_ENABLE_NAMESPACES "Enable C++ namespaces." ON)
+
+
+###############################################################################
+#########  UPDATE DEPENDENCY BUILDS BASED ON USD PXR OPTIONS   ################
+###############################################################################
+
+if (NOT PXR_BUILD_OPENCOLORIO_PLUGIN)
+  set(BUILD_OPENCOLORIO OFF)
+endif()
+
+if (NOT PXR_ENABLE_PTEX_SUPPORT)
+  set(BUILD_PTEX OFF)
+endif()
+
+if (NOT PXR_ENABLE_OPENVDB_SUPPORT)
+  set(BUILD_VDB OFF)
+endif()
+
+
+###############################################################################
+#########  SETUP USD CMAKE                                     ################
+###############################################################################
+
+set(USD_DEPENDENCIES "")
+
+set(USD_ARGS
+    -DPXR_BUILD_USD_IMAGING=${PXR_BUILD_USD_IMAGING}
+    -DPXR_BUILD_OPENIMAGEIO_PLUGIN=${PXR_BUILD_OPENIMAGEIO_PLUGIN}
+    -DPXR_BUILD_OPENCOLORIO_PLUGIN=${PXR_BUILD_OPENCOLORIO_PLUGIN}
+    -DPXR_ENABLE_OPENVDB_SUPPORT=${PXR_ENABLE_OPENVDB_SUPPORT}
+    -DPXR_BUILD_USDVIEW=${PXR_BUILD_USDVIEW}
+    #-DPXR_ENABLE_VULKAN_SUPPORT=ON
+    -DPXR_ENABLE_PTEX_SUPPORT=${PXR_ENABLE_PTEX_SUPPORT}
+    -DPXR_BUILD_PRMAN_PLUGIN=${PXR_BUILD_PRMAN_PLUGIN}
+)
 
 ## order defined below is crucial for setting up the cmake environment correctly
-include(get_tbb)
-
-set(INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install )
-
-##
-## Boost
-##
-
-set(BOOST_ARGS ./b2 install --prefix=${INSTALL_DIR} --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-filesystem)
-set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz)
-if (USE_PYTHON)
-  if (USE_PYTHON2)
-    find_package(Python2 REQUIRED)
-    file(
-      WRITE ${CMAKE_CURRENT_BINARY_DIR}/source/boost/src/boost/python-config.jam
-      "using python : ${Python2_VERSION_MAJOR}.${Python2_VERSION_MINOR} : \"${Python2_EXECUTABLE}\" ;"
-    )
-    set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz)
-  else()
-    find_package(Python3 REQUIRED)
-    file(
-      WRITE ${CMAKE_CURRENT_BINARY_DIR}/source/boost/src/boost/python-config.jam
-      "using python : ${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR} : \"${Python3_EXECUTABLE}\" ;"
-    )
-    set(BOOST_URL https://downloads.sourceforge.net/project/boost/boost/1.70.0/boost_1_70_0.tar.gz)
-  endif()
-  set(BOOST_ARGS ${BOOST_ARGS} --with-python --user-config=python-config.jam )
-endif()
-
-ExternalProject_Add(boost
-  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/source/boost
-  URL ${BOOST_URL}
-  CONFIGURE_COMMAND ./bootstrap.sh --prefix=${INSTALL_DIR}
-  BUILD_COMMAND ${BOOST_ARGS}
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND ""
-  INSTALL_DIR ${INSTALL_DIR}
-)
-
-##
-## OpenEXR
-##
-
-build_component(
-  NAME OpenEXR
-  VERSION "v2.4.0"
-  URL "https://github.com/AcademySoftwareFoundation/openexr"
-  BUILD_ARGS ""
-)
-
-##
-## OIIO
-##
-
-build_component(
- NAME OIIO
- VERSION "Release-1.8.17"
- URL "https://github.com/OpenImageIO/oiio"
- BUILD_ARGS
-  -DBoost_INCLUDE_DIR=${INSTALL_DIR}/include " "
-  -DBoost_LIBRARY_DIR_RELEASE=${INSTALL_DIR}/lib/ " "
-  -DOIIO_BUILD_TOOLS=OFF
-  -DOIIO_BUILD_TESTS=OFF
-  -DUSE_PYTHON=OFF
-  -DSTOP_ON_WARNING=OFF
-  -DOPENEXR_HOME=${INSTALL_DIR}
-  -DUSE_PTEX=OFF
-  -DBoost_NO_BOOST_CMAKE=On
-  -DBoost_NO_SYSTEM_PATHS=True
- DEPENDS_ON OpenEXR boost
-)
-
-##
-## OpenSubdiv
-##
-
-build_component(
-  NAME OpenSubdiv
-  VERSION "v3_4_3"
-  URL https://github.com/PixarAnimationStudios/OpenSubdiv
-  BUILD_ARGS ""
-  DEPENDS_ON
-)
-
-##
-## GLEW
-##
-
-if (BUILD_GLEW)
-  build_component(
-    NAME GLEW
-    VERSION "glew-2.0.0"
-    URL https://github.com/nigels-com/glew
-    BUILD_ARGS ""
-    DEPENDS_ON
+#include(get_tbb)
+if (BUILD_TBB)
+  include(TBB)
+  set(USD_ARGS ${USD_ARGS}
+    -DTBB_ROOT=${CMAKE_INSTALL_PREFIX}
   )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} tbb)
+endif()
+#Boost should have a TBB dependency (check that)
+if (BUILD_BOOST)
+  include(Boost)
+  set(USD_ARGS ${USD_ARGS}
+    -DBOOST_ROOT=${CMAKE_INSTALL_PREFIX}
+    -DBoost_NO_SYSTEM_PATHS=ON
+    -DBoost_NO_BOOST_CMAKE=ON
+  )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} boost)
 endif()
 
-##
-## Ptex
-##
+include(Glew)
 
-build_component(
-  NAME Ptex
-  VERSION "v2.1.28"
-  URL https://github.com/wdas/ptex
-  BUILD_ARGS ""
-  DEPENDS_ON
-)
+if (BUILD_OPENEXR)
+  include(OpenEXR)
+  set(USD_ARGS ${USD_ARGS}
+    -DOPENEXR_LOCATION=${CMAKE_INSTALL_PREFIX}
+  )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OpenEXR)
+endif()
+
+if (BUILD_OPENIMAGEIO)
+  include(OpenImageIO)
+  set(USD_ARGS ${USD_ARGS}
+    -DOIIO_LOCATION=${CMAKE_INSTALL_PREFIX}
+  )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OIIO)
+endif()
+
+if(BUILD_OPENCOLORIO)
+  include(OpenColorIO)
+  set(USD_ARGS ${USD_ARGS}
+    -DOCIO_LOCATION=${CMAKE_INSTALL_PREFIX}
+  )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OCIO)
+endif()
+
+if(BUILD_PTEX)
+  include(Ptex)
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} Ptex)
+endif()
+
+if(BUILD_OPENSUBDIV)
+  include(OpenSubdiv)
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OpenSubdiv)
+endif()
+
+if (BUILD_VDB)
+  include(OpenVDB)
+  set(USD_ARGS ${USD_ARGS}
+    -DOPENVDB_LOCATION=${CMAKE_INSTALL_PREFIX}
+  )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OpenVDB)
+endif()
 
 ##
 ## USD
 ##
 
-set(USD_ARGS
-    -DTBB_ROOT=${TBB_PATH} " "
-    -DBoost_INCLUDE_DIR=${INSTALL_DIR}/include " "
-    -DBoost_LIBRARY_DIR_RELEASE=${INSTALL_DIR}/lib/ " "
-    -DBoost_PROGRAM_OPTIONS_LIBRARY_RELEASE=${INSTALL_DIR}/lib/libboost_program_options.so " "
-    -DPXR_BUILD_USD_IMAGING=ON " "
-    -DPXR_BUILD_USDVIEW=ON " "
-    -DOPENSUBDIV_INCLUDE_DIR=${INSTALL_DIR}/include
-    -DOPENSUBDIV_OSDCPU_LIBRARY=${INSTALL_DIR}/lib/libosdCPU.so
-    -DOPENSUBDIV_OSDGPU_LIBRARY=${INSTALL_DIR}/lib/libosdGPU.so
-    -DOIIO_BASE_DIR=${INSTALL_DIR}
-    -DPTEX_INCLUDE_DIR=${INSTALL_DIR}/include
-    -DPTEX_LIBRARY=${INSTALL_DIR}/lib/libPtex.so
-)
-
 if (USE_PYTHON)
     set(USD_ARGS ${USD_ARGS} -DPXR_ENABLE_PYTHON_SUPPORT=ON " ")
     if (USE_PYTHON2)
-      set(USD_ARGS ${USD_ARGS} -DPXR_PYTHON_SHEBANG=${Python2_EXECUTABLE} " ")
-      set(USD_ARGS ${USD_ARGS} -DPYTHON_EXECUTABLE=${Python2_EXECUTABLE} " ")
       set(USD_ARGS ${USD_ARGS} -DPXR_USE_PYTHON_3=OFF " ")
-      set(PYTHON_EXECUTABLE ${Python2_EXECUTABLE})
     else()
-      set(USD_ARGS ${USD_ARGS} -DPXR_PYTHON_SHEBANG=${Python3_EXECUTABLE} " ")
       set(USD_ARGS ${USD_ARGS} -DPXR_USE_PYTHON_3=ON " ")
-      set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
     endif()
-
-    set(PYSIDE_BIN_DIRECTORY /usr/bin/)
-    find_package(PySide REQUIRED)
-    set(USD_ARGS ${USD_ARGS} -DPYSIDEUICBINARY=/usr/bin/python2-pyside-uic " ")
 else()
     set(USD_ARGS ${USD_ARGS} -DPXR_ENABLE_PYTHON_SUPPORT=OFF " ")
 endif()
 
 build_component(
   NAME USD
+#  VERSION "v21.02"
+#  VERSION "v20.11"
   VERSION "v20.05"
   URL "https://github.com/PixarAnimationStudios/USD"
   BUILD_ARGS ${USD_ARGS}
-  DEPENDS_ON tbb boost OpenEXR OIIO Ptex OpenSubdiv
+  DEPENDS_ON ${USD_DEPENDENCIES}
   INSTALL_BINARIES
 )
