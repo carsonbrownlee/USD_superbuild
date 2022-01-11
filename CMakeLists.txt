@@ -55,6 +55,10 @@ option(BUILD_ALL_DEPS "build ALL dependencies" ON)
 
 option(BUILD_GLEW "build glew"                OFF)
 option(BUILD_TBB "build TBB"                  OFF)
+option(BUILD_PNG "build libpng"               OFF)
+option(BUILD_PNG "build zlib"                 OFF)
+option(BUILD_PNG "build libjpeg"              OFF)
+option(BUILD_PNG "build libtiff"              OFF)
 option(BUILD_VDB "build OpenVDB"              OFF)
 option(BUILD_BOOST "build BOOST"              OFF)
 option(BUILD_OPENEXR "build OpenEXR"          OFF)
@@ -164,6 +168,14 @@ if (BUILD_BOOST)
 endif()
 
 include(Glew)
+
+if (BUILD_PNG)
+	include(PNG)
+  set(USD_ARGS ${USD_ARGS}
+	  -DPNG_LOCATION=${CMAKE_INSTALL_PREFIX}
+  )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} PNG)
+endif()
 
 if (BUILD_OPENEXR)
   include(OpenEXR)
