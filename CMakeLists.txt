@@ -151,6 +151,13 @@ set(USD_ARGS
     -DPXR_BUILD_PRMAN_PLUGIN=${PXR_BUILD_PRMAN_PLUGIN}
 )
 
+if (BUILD_GLEW)
+	set(USD_ARGS ${USD_ARGS}
+		-DGLEW_INCLUDE_DIR:PATH=${CMAKE_INSTALL_PREFIX}/include
+		-DGLEW_LIBRARY:FILEPATH=${CMAKE_INSTALL_PREFIX}/lib/libGLEW.so
+	)
+endif()
+
 ## order defined below is crucial for setting up the cmake environment correctly
 #include(get_tbb)
 if (BUILD_TBB)
