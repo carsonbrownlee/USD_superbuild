@@ -67,6 +67,7 @@ option(BUILD_OPENCOLORIO "build OpenColorIO"  OFF)
 option(BUILD_PTEX        "build Ptex"          ON)
 option(BUILD_OPENSUBDIV  "build OpenSubdiv"    ON)
 option(BUILD_USD "Build USD" ON)
+set(USD_VERSION "v21.08" CACHE STRING "USD version tag")
 
 if(BUILD_ALL_DEPS)
   set(BUILD_GLEW 	ON)
@@ -257,7 +258,6 @@ else()
     set(USD_ARGS ${USD_ARGS} -DPXR_ENABLE_PYTHON_SUPPORT=OFF " ")
 endif()
 
-SET(USD_VERSION v20.08)
 
 if (BUILD_USD)
   SET(EP_USD "USD")
