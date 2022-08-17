@@ -40,10 +40,10 @@ endif()
 set(OIIO_VERSION "Release-2.1.16.0")
 
 build_component(
- NAME OIIO
+ NAME OpenImageIO
  VERSION ${OIIO_VERSION}
  URL "https://github.com/OpenImageIO/oiio"
  BUILD_ARGS ${OIIO_ARGS}
 
- DEPENDS_ON OpenEXR OCIO ${OIIO_DEPENDENCIES}
+ DEPENDS_ON OpenEXR OpenColorIO ${OIIO_DEPENDENCIES}
 )
