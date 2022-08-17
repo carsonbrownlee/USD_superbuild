@@ -58,7 +58,6 @@ else()
     set(TBB_OSSUFFIX "lin.tgz")
   endif()
 
-https://github.com/oneapi-src/oneTBB/releases/download/2019_U8/tbb2019_20190605oss_mac.tgz
   if (TBB_URL)
     set(TBB_URL ${TBB_URL}_${TBB_OSSUFFIX})
   else()
