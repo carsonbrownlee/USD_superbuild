@@ -45,5 +45,5 @@ build_component(
  URL "https://github.com/OpenImageIO/oiio"
  BUILD_ARGS ${OIIO_ARGS}
 
- DEPENDS_ON OpenEXR ${OIIO_DEPENDENCIES}
+ DEPENDS_ON OpenEXR OCIO ${OIIO_DEPENDENCIES}
 )
