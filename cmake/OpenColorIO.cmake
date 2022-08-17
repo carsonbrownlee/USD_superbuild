@@ -45,7 +45,7 @@ endif()
 
 build_component(
  NAME OCIO
- VERSION "v1.1.1"
+ VERSION "v1.1.0"
  URL "https://github.com/AcademySoftwareFoundation/OpenColorIO"
  BUILD_ARGS ${OCIO_ARGS}
  DEPENDS_ON ${OCIO_DEPENDENCIES}
