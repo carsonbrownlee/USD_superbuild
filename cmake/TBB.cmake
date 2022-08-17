@@ -60,6 +60,7 @@ else()
 
   if (TBB_URL)
     set(TBB_URL ${TBB_URL}_${TBB_OSSUFFIX})
+    set(TBB_FOLDER tbb2019_20190605oss)
   else()
     set(TBB_URL "https://github.com/oneapi-src/oneTBB/releases/download/v${TBB_VERSION}/${TBB_PREFIX}tbb-${TBB_VERSION}-${TBB_OSSUFFIX}")
   endif()
@@ -75,7 +76,7 @@ else()
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND "${CMAKE_COMMAND}" -E copy_directory
-      <SOURCE_DIR>/${TBB_FOLDER}*
+      <SOURCE_DIR>/${TBB_FOLDER}
       ${COMPONENT_PATH}
     BUILD_ALWAYS OFF
   )
