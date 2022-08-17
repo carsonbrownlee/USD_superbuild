@@ -3,6 +3,8 @@
 
 set(COMPONENT_NAME tbb)
 set(TBB_VERSION 2019_U8)
+#hardcode url for houdini version as the 0605 breaks naming convention
+set(TBB_URL https://github.com/oneapi-src/oneTBB/releases/download/2019_U8/tbb2019_20190605oss)
 
 set(COMPONENT_PATH ${INSTALL_DIR_ABSOLUTE})
 if (INSTALL_IN_SEPARATE_DIRECTORIES)
@@ -56,7 +58,12 @@ else()
     set(TBB_OSSUFFIX "lin.tgz")
   endif()
 
-  set(TBB_URL "https://github.com/oneapi-src/oneTBB/releases/download/v${TBB_VERSION}/${TBB_PREFIX}tbb-${TBB_VERSION}-${TBB_OSSUFFIX}")
+https://github.com/oneapi-src/oneTBB/releases/download/2019_U8/tbb2019_20190605oss_mac.tgz
+  if (TBB_URL)
+    set(TBB_URL ${TBB_URL}_${TBB_OSSUFFIX})
+  else()
+    set(TBB_URL "https://github.com/oneapi-src/oneTBB/releases/download/v${TBB_VERSION}/${TBB_PREFIX}tbb-${TBB_VERSION}-${TBB_OSSUFFIX}")
+  endif()
 
   ExternalProject_Add(${COMPONENT_NAME}
     PREFIX ${COMPONENT_NAME}

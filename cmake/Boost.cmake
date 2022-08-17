@@ -25,7 +25,23 @@ if (USE_PYTHON)
   list(JOIN BOOST_PYTHON_VERSIONS "," BOOST_PYTHON_VERSIONS)
 
   set(BOOST_BUILD_COMMAND ${BOOST_BUILD_COMMAND}  --user-config=${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam python=${BOOST_PYTHON_VERSIONS} --with-python)
+endif()
 
+set(BOOST_URL https://boostorg.jfrog.io/artifactory/main/release/1.67.0/source/boost_1_67_0.tar.gz)
+
+if (WIN32)
+  if (${MSVC_VERSION} EQUAL "142")
+    set(BOOST_BUILD_COMMAND ${BOOST_BUILD_COMMAND} toolset=msvc-14.2)
+  elseif (${MSVC_VERSION} EQUAL "141")
+    set(BOOST_BUILD_COMMAND ${BOOST_BUILD_COMMAND} toolset=msvc-14.1)
+  else()
+    set(BOOST_BUILD_COMMAND ${BOOST_BUILD_COMMAND} toolset=msvc-14.0)
+  endif()
+endif()
+
+if (APPLE)
+  set(BOOST_BUILD_COMMAND ${BOOST_BUILD_COMMAND} toolset=clang)
+  set(BOOST_URL https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_1_79_0.tar.gz)
 endif()
 
 ExternalProject_Add (
@@ -33,7 +49,7 @@ ExternalProject_Add (
 
   PREFIX         ${EP_BOOST}/source/boost
   BUILD_IN_SOURCE 1
-  URL https://boostorg.jfrog.io/artifactory/main/release/1.67.0/source/boost_1_67_0.tar.gz
+  URL ${BOOST_URL}
   BUILD_ALWAYS   OFF
 
   LIST_SEPARATOR | # Use the alternate list separator
