@@ -122,17 +122,17 @@ option(PXR_ENABLE_OPENVDB_SUPPORT "Enable OpenVDB support" OFF)
 #########  UPDATE DEPENDENCY BUILDS BASED ON USD PXR OPTIONS   ################
 ###############################################################################
 
-if (NOT PXR_BUILD_OPENCOLORIO_PLUGIN)
-  set(BUILD_OPENCOLORIO OFF)
-endif()
+#if (NOT PXR_BUILD_OPENCOLORIO_PLUGIN)
+#  set(BUILD_OPENCOLORIO OFF)
+#endif()
 
-if (NOT PXR_ENABLE_PTEX_SUPPORT)
-  set(BUILD_PTEX OFF)
-endif()
+#if (NOT PXR_ENABLE_PTEX_SUPPORT)
+#  set(BUILD_PTEX OFF)
+#endif()
 
-if (NOT PXR_ENABLE_OPENVDB_SUPPORT)
-  set(BUILD_VDB OFF)
-endif()
+#if (NOT PXR_ENABLE_OPENVDB_SUPPORT)
+#  set(BUILD_VDB OFF)
+#endif()
 
 
 ###############################################################################
@@ -209,20 +209,22 @@ if (BUILD_OPENEXR)
   set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OpenEXR)
 endif()
 
-if (BUILD_OPENIMAGEIO)
-  include(OpenImageIO)
-  set(USD_ARGS ${USD_ARGS}
-    -DOIIO_LOCATION=${CMAKE_INSTALL_PREFIX}
-  )
-  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OIIO)
-endif()
-
+message("test1")
 if(BUILD_OPENCOLORIO)
+  message("build OCIO")
   include(OpenColorIO)
   set(USD_ARGS ${USD_ARGS}
     -DOCIO_LOCATION=${CMAKE_INSTALL_PREFIX}
   )
   set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OCIO)
+endif()
+
+if (BUILD_OPENIMAGEIO)
+  #include(OpenImageIO)
+  set(USD_ARGS ${USD_ARGS}
+    -DOIIO_LOCATION=${CMAKE_INSTALL_PREFIX}
+  )
+  #set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OIIO)
 endif()
 
 if(BUILD_PTEX)
@@ -281,6 +283,8 @@ if (BUILD_USD)
       -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX}
       ${USD_ARGS}
     BUILD_ALWAYS OFF
+
+    DEPENDS ${USD_DEPENDENCIES}
   )
 
   ExternalProject_Add_StepDependencies(${EP_USD}

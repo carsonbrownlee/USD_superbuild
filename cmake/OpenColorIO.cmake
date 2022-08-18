@@ -43,8 +43,10 @@ if(BUILD_OPENIMAGEIO)
     )
 endif()
 
+message("building OCIO?")
+
 build_component(
- NAME OpenColorIO
+ NAME OCIO
  VERSION "v1.1.0"
  URL "https://github.com/AcademySoftwareFoundation/OpenColorIO"
  BUILD_ARGS ${OCIO_ARGS}
