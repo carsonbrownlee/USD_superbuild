@@ -39,7 +39,7 @@ if(BUILD_OPENIMAGEIO)
     )
     set(OCIO_DEPENDENCIES
         ${OCIO_DEPENDENCIES}
-        OIIO
+#        OIIO
     )
 endif()
 

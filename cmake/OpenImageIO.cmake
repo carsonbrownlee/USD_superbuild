@@ -36,8 +36,15 @@ if (BUILD_OPENEXR)
     )
 endif()
 
+if (BUILD_OPENCOLORIO)
+    set(OIIO_DEPENDENCIES ${OIIO_DEPENDENCIES}
+        OCIO
+    )
+endif()
+
 #set(OIIO_VERSION "Release-1.8.17")
-set(OIIO_VERSION "Release-2.1.16.0")
+set(OIIO_VERSION "Release-2.2.15.1")  # builds on Mac Monterey
+#set(OIIO_VERSION "Release-2.1.16.0")
 
 build_component(
  NAME OIIO
