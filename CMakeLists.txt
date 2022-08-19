@@ -63,6 +63,7 @@ option(BUILD_VDB "build OpenVDB"              OFF)
 option(BUILD_BOOST "build BOOST"              OFF)
 option(BUILD_OPENEXR "build OpenEXR"          OFF)
 option(BUILD_OPENIMAGEIO "build OpenImageIO"  OFF)
+option(BUILD_HDF5 "build HDF5"                OFF)
 option(BUILD_OPENCOLORIO "build OpenColorIO"  OFF)
 option(BUILD_PTEX        "build Ptex"          ON)
 option(BUILD_OPENSUBDIV  "build OpenSubdiv"    ON)
@@ -80,6 +81,7 @@ if(BUILD_ALL_DEPS)
   set(BUILD_BOOST       ON)
   set(BUILD_OPENEXR     ON)
   set(BUILD_OPENIMAGEIO ON)
+  set(BUILD_HDF5        ON)
   set(BUILD_OPENCOLORIO ON)
   set(BUILD_PTEX        ON)
   set(BUILD_OPENSUBDIV  ON)
@@ -209,9 +211,7 @@ if (BUILD_OPENEXR)
   set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OpenEXR)
 endif()
 
-message("test1")
 if(BUILD_OPENCOLORIO)
-  message("build OCIO")
   include(OpenColorIO)
   set(USD_ARGS ${USD_ARGS}
     -DOCIO_LOCATION=${CMAKE_INSTALL_PREFIX}
@@ -219,12 +219,20 @@ if(BUILD_OPENCOLORIO)
   set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OCIO)
 endif()
 
-if (BUILD_OPENIMAGEIO)
-  #include(OpenImageIO)
+if (BUILD_HDF5)
+  include(hdf5)
   set(USD_ARGS ${USD_ARGS}
     -DOIIO_LOCATION=${CMAKE_INSTALL_PREFIX}
   )
-  #set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OIIO)
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} hdf5)
+endif()
+
+if (BUILD_OPENIMAGEIO)
+  include(OpenImageIO)
+  set(USD_ARGS ${USD_ARGS}
+    -DOIIO_LOCATION=${CMAKE_INSTALL_PREFIX}
+  )
+  set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OIIO)
 endif()
 
 if(BUILD_PTEX)

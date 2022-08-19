@@ -2,9 +2,13 @@
 ## SPDX-License-Identifier: Apache-2.0
 
 set(COMPONENT_NAME tbb)
-set(TBB_VERSION 2019_U8)
+set(TBB_VERSION 2018_U6)
 #hardcode url for houdini version as the 0605 breaks naming convention
 set(TBB_URL https://github.com/oneapi-src/oneTBB/releases/download/2019_U8/tbb2019_20190605oss)
+if (APPLE)
+  set(TBB_VERSION 2018_U1)
+  set(TBB_URL https://github.com/oneapi-src/oneTBB/releases/download/2018_U6/tbb2018_20180822oss)
+endif()
 
 set(COMPONENT_PATH ${INSTALL_DIR_ABSOLUTE})
 if (INSTALL_IN_SEPARATE_DIRECTORIES)
@@ -61,6 +65,9 @@ else()
   if (TBB_URL)
     set(TBB_URL ${TBB_URL}_${TBB_OSSUFFIX})
     set(TBB_FOLDER tbb2019_20190605oss)
+    if (APPLE)
+	set(TBB_FOLDER tbb2018_20180822oss)
+    endif()
   else()
     set(TBB_URL "https://github.com/oneapi-src/oneTBB/releases/download/v${TBB_VERSION}/${TBB_PREFIX}tbb-${TBB_VERSION}-${TBB_OSSUFFIX}")
   endif()

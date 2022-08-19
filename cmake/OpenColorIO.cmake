@@ -22,28 +22,11 @@ set(OCIO_DEPENDENCIES "")
 
 
 if(BUILD_OPENEXR)
-    set(OCIO_ARGS
-        ${OCIO_ARGS}
-        #-DILMBASE_PATH=${CMAKE_INSTALL_PREFIX}
-    )
     set(OCIO_DEPENDENCIES
         ${OCIO_DEPENDENCIES}
         OpenEXR
     )
 endif()
-
-if(BUILD_OPENIMAGEIO)
-    set(OCIO_ARGS
-        ${OCIO_ARGS}
-        #-DOIIO_PATH=${CMAKE_INSTALL_PREFIX}
-    )
-    set(OCIO_DEPENDENCIES
-        ${OCIO_DEPENDENCIES}
-        OIIO
-    )
-endif()
-
-message("building OCIO?")
 
 build_component(
  NAME OCIO
