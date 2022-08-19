@@ -209,9 +209,7 @@ if (BUILD_OPENEXR)
   set(USD_DEPENDENCIES ${USD_DEPENDENCIES} OpenEXR)
 endif()
 
-message("test1")
 if(BUILD_OPENCOLORIO)
-  message("build OCIO")
   include(OpenColorIO)
   set(USD_ARGS ${USD_ARGS}
     -DOCIO_LOCATION=${CMAKE_INSTALL_PREFIX}
