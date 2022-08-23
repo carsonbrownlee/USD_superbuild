@@ -36,6 +36,12 @@ if (BUILD_OPENEXR)
     )
 endif()
 
+if (BUILD_HDF5)
+    set(OIIO_DEPENDENCIES ${OIIO_DEPENDENCIES}
+        hdf5
+    )
+endif()
+
 if (BUILD_OPENCOLORIO)
     set(OIIO_DEPENDENCIES ${OIIO_DEPENDENCIES}
         OCIO
