@@ -27,7 +27,8 @@ if (USE_PYTHON)
   set(BOOST_BUILD_COMMAND ${BOOST_BUILD_COMMAND}  --user-config=${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam python=${BOOST_PYTHON_VERSIONS} --with-python)
 endif()
 
-set(BOOST_URL https://boostorg.jfrog.io/artifactory/main/release/1.67.0/source/boost_1_67_0.tar.gz)
+
+set(BOOST_URL "https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz" CACHE STRING "Boost URL")
 
 if (WIN32)
   if (${MSVC_VERSION} EQUAL "142")

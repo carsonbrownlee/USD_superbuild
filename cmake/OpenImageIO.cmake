@@ -43,6 +43,18 @@ if (BUILD_HDF5)
     )
 endif()
 
+if (BUILD_PNG)
+    set(OIIO_DEPENDENCIES ${OIIO_DEPENDENCIES}
+        png
+    )
+endif()
+
+if (BUILD_JPEG)
+    set(OIIO_DEPENDENCIES ${OIIO_DEPENDENCIES}
+        jpeg
+    )
+endif()
+
 if (BUILD_OPENCOLORIO)
     set(OIIO_DEPENDENCIES ${OIIO_DEPENDENCIES}
         OCIO
@@ -50,7 +62,7 @@ if (BUILD_OPENCOLORIO)
 endif()
 
 #set(OIIO_VERSION "Release-1.8.17")
-set(OIIO_VERSION "Release-2.2.15.1")  # builds on Mac Monterey
+set(OIIO_VERSION "Release-2.2.15.1" CACHE STRING "OpenImageIO release string")  # builds on Mac Monterey
 #set(OIIO_VERSION "Release-2.1.16.0")
 
 build_component(

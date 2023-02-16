@@ -18,15 +18,17 @@ set(JPEG_DEPENDENCIES ""
 )
 
 ExternalProject_Add (
-	${EP_JPEG}
-	PREFIX ${EP_JPEG}
-	BINARY_DIR ${EP_JPEG}/build
-	SOURCE_DIR ${EP_JPEG}/source
-  URL "https://download.osgeo.org/libtiff/tiff-4.0.7.zip"
+  ${EP_JPEG}
+  PREFIX ${EP_JPEG}
+  BINARY_DIR ${EP_JPEG}/build
+  SOURCE_DIR ${EP_JPEG}/source
+  URL ${JPEG_URL}
   BUILD_ALWAYS OFF
   INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-  #INSTALL_COMMAND ""
+  CONFIGURE_COMMAND ../source/configure --prefix=${CMAKE_INSTALL_PREFIX}
+  BUILD_COMMAND make -j8
+  INSTALL_COMMAND make install
 )
 
 
