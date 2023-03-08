@@ -33,7 +33,7 @@ endif()
 
 build_component(
   NAME OpenSubdiv
-  VERSION "v3_4_3"
+  VERSION "v3_5_0"
   URL https://github.com/PixarAnimationStudios/OpenSubdiv
   BUILD_ARGS ${OPENSUBDIV_ARGS}
   DEPENDS_ON ${OPENSUBDIV_DEPENDENCIES}
