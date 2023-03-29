@@ -28,7 +28,7 @@ if (USE_PYTHON)
 endif()
 
 
-set(BOOST_URL "https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz" CACHE STRING "Boost URL")
+set(BOOST_URL "https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.gz" CACHE STRING "Boost URL")
 
 if (WIN32)
   if (${MSVC_VERSION} EQUAL "142")
