@@ -5,7 +5,7 @@
 # TBB
 #
 set(COMPONENT_NAME tbb)
-set(TBB_URL "https://github.com/oneapi-src/oneTBB/archive/refs/tags/2019_U6.tar.gz")
+set(TBB_URL "https://github.com/oneapi-src/oneTBB/archive/refs/tags/v2020.3.tar.gz" CACHE STRING "tbb source url")
 set(COMPONENT_PATH ${CMAKE_BINARY_DIR}/${COMPONENT_NAME})
 
 if (APPLE)
