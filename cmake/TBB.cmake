@@ -16,13 +16,17 @@ else()
   set(TBB_OS Linux)
 endif()
 
+# disjointed findTBB.cmake files look in different directories for libs
+# TODO: embree4 cmake appears to set TBB_DIR to TBB_ROOT/lib/cmake,
+# breaking tbbs generated cmake config file
 file(WRITE ${COMPONENT_PATH}/tbb_install.sh
-  "mkdir ${CMAKE_INSTALL_PREFIX}/lib/intel64;"
-  "mkdir ${CMAKE_INSTALL_PREFIX}/lib/intel64/gcc4.8;"
+  "mkdir -p ${CMAKE_INSTALL_PREFIX}/lib/intel64/gcc4.8;"
+  "mkdir -p ${CMAKE_INSTALL_PREFIX}/lib/cmake/lib/intel64/;"
   "cp ${COMPONENT_PATH}/src/build/\*_debug/\*.so\* ${CMAKE_INSTALL_PREFIX}/lib/;"
   "cp ${COMPONENT_PATH}/src/build/\*_release/\*.so\* ${CMAKE_INSTALL_PREFIX}/lib/;"
-  "cp ${COMPONENT_PATH}/src/build/\*_debug/\*.so\* ${CMAKE_INSTALL_PREFIX}/lib/intel64/gcc4.8/.;"
-  "cp ${COMPONENT_PATH}/src/build/\*_release/\*.so\* ${CMAKE_INSTALL_PREFIX}/lib/intel64/gcc4.8/."
+  "ln -sf ${CMAKE_INSTALL_PREFIX}/lib ${CMAKE_INSTALL_PREFIX}/lib/intel64/gcc4.8;"
+  "ln -sf ${CMAKE_INSTALL_PREFIX}/lib ${CMAKE_INSTALL_PREFIX}/lib/cmake/lib/intel64/gcc4.8;"
+  "ln -sf ${CMAKE_INSTALL_PREFIX}/include ${CMAKE_INSTALL_PREFIX}/lib/cmake/include;"
   )
 file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/include/tbb)
 

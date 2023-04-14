@@ -28,6 +28,27 @@ if(BUILD_OPENEXR)
     )
 endif()
 
+if(BUILD_TIFF)
+    set(OCIO_DEPENDENCIES
+        ${OCIO_DEPENDENCIES}
+        tiff
+    )
+endif()
+
+if(BUILD_PNG)
+    set(OCIO_DEPENDENCIES
+        ${OCIO_DEPENDENCIES}
+        png
+    )
+endif()
+
+if(BUILD_JPEG)
+    set(OCIO_DEPENDENCIES
+        ${OCIO_DEPENDENCIES}
+        jpeg
+    )
+endif()
+
 build_component(
  NAME OCIO
  VERSION "v1.1.0"
