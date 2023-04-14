@@ -298,4 +298,18 @@ if (BUILD_USD)
   ExternalProject_Add_StepDependencies(${EP_USD}
         configure ${USD_DEPENDENCIES}
       )
+  external_install(USD)
 endif()
+
+message("cpack projects: " ${depProjectInfo})
+#set(CPACK_INSTALL_CMAKE_PROJECTS ${depProjectInfo})
+#set(installed_directories "${CMAKE_INSTALL_PREFIX}/lib" "lib")
+#set(installed_directories ${installed_directories} "${CMAKE_INSTALL_PREFIX}/include" "include")
+#set(installed_directories ${installed_directories} "${CMAKE_INSTALL_PREFIX}/bin" "bin")
+#set(installed_directories ${installed_directories} "${CMAKE_INSTALL_PREFIX}/plugin" "plugin")
+set(installed_directories ${installed_directories} "${CMAKE_INSTALL_PREFIX}" "install")
+set(CPACK_INSTALLED_DIRECTORIES ${installed_directories})
+
+set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+include(CPack)

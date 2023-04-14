@@ -4,8 +4,7 @@
 
 set (EP_JPEG "jpeg")
 
-set(JPEG_ARGS ""
-)
+set(JPEG_ARGS "")
 
 set(JPEG_URL "https://www.ijg.org/files/jpegsrc.v9b.tar.gz")
 if (WIN32)
@@ -31,4 +30,11 @@ ExternalProject_Add (
   INSTALL_COMMAND make install
 )
 
-
+#add_library(${EP_JPEG} STATIC IMPORTED)
+#set_property(TARGET ${EP_JPEG} PROPERTY IMPORTED_LOCATION ${CMAKE_INSTALL_PREFIX}/lib/libjpeg.a)
+#set_property(TARGET ${EP_JPEG} PROPERTY INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
+#add_dependencies(${EP_JPEG} project_${EP_JPEG})
+#target_link_libraries(USD_superbuild ${EP_JPEG})
+#set(projectInfo ${CMAKE_INSTALL_PREFIX} "jpeg" "ALL" "/")
+#set(depProjectInfo ${depProjectInfo} ${projectInfo})
+#external_install(jpeg)

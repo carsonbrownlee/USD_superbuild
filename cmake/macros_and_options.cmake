@@ -60,6 +60,14 @@ macro(append_cmake_prefix_path)
   string(REPLACE ";" "|" CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}")
 endmacro()
 
+macro(external_install NAME)
+  ExternalProject_Get_property(${NAME} BINARY_DIR)
+  #ExternalProject_Get_property(${NAME} INSTALL_DIR)
+  set(binDir ${BINARY_DIR})
+  set(projectInfo ${binDir} "${NAME}" "ALL" "/")
+  set(depProjectInfo ${depProjectInfo} ${projectInfo})
+endmacro()
+
 #### Main component build macro ####
 
 macro(build_component)
