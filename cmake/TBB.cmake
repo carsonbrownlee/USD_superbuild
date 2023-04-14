@@ -17,8 +17,12 @@ else()
 endif()
 
 file(WRITE ${COMPONENT_PATH}/tbb_install.sh
+  "mkdir ${CMAKE_INSTALL_PREFIX}/lib/intel64;"
+  "mkdir ${CMAKE_INSTALL_PREFIX}/lib/intel64/gcc4.8;"
   "cp ${COMPONENT_PATH}/src/build/\*_debug/\*.so\* ${CMAKE_INSTALL_PREFIX}/lib/;"
   "cp ${COMPONENT_PATH}/src/build/\*_release/\*.so\* ${CMAKE_INSTALL_PREFIX}/lib/;"
+  "cp ${COMPONENT_PATH}/src/build/\*_debug/\*.so\* ${CMAKE_INSTALL_PREFIX}/lib/intel64/gcc4.8/.;"
+  "cp ${COMPONENT_PATH}/src/build/\*_release/\*.so\* ${CMAKE_INSTALL_PREFIX}/lib/intel64/gcc4.8/."
   )
 file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/include/tbb)
 
