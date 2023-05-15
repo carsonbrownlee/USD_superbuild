@@ -49,6 +49,12 @@ if (BUILD_PNG)
     )
 endif()
 
+if (BUILD_TIFF)
+    set(OIIO_DEPENDENCIES ${OIIO_DEPENDENCIES}
+        tiff
+    )
+endif()
+
 if (BUILD_JPEG)
     set(OIIO_DEPENDENCIES ${OIIO_DEPENDENCIES}
         jpeg
