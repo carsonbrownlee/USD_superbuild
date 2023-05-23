@@ -14,8 +14,6 @@
 ## limitations under the License.                                           ##
 ## ======================================================================== ##
 
-## Global CMake settings ##
-
 cmake_minimum_required(VERSION 3.5)
 
 SET (CMAKE_VERBOSE_MAKEFILE ON)
@@ -33,8 +31,6 @@ if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-## Establish project ##
-
 project(USD_superbuild)
 
 include(ExternalProject)
@@ -45,14 +41,11 @@ include(macros_and_options)
 option(USE_PYTHON "enable python support" ON)
 option(USE_PYTHON2 "if USE_PYTHON enabled, use python2 instead of python3" OFF)
 
-
-
 ###############################################################################
-#########          Dependency Build Switches                   ################
+#########                            Options                   ################
 ###############################################################################
 
 option(BUILD_ALL_DEPS "build ALL dependencies" ON)
-
 option(BUILD_GLEW "build glew"                OFF)
 option(BUILD_TBB "build TBB"                  OFF)
 option(BUILD_PNG "build libpng"               OFF)
@@ -155,6 +148,7 @@ set(USD_ARGS
 )
 
 if (BUILD_GLEW)
+  include(Glew)
 	set(USD_ARGS ${USD_ARGS}
 		-DGLEW_INCLUDE_DIR:PATH=${CMAKE_INSTALL_PREFIX}/include
 		-DGLEW_LIBRARY:FILEPATH=${CMAKE_INSTALL_PREFIX}/lib/libGLEW.so
@@ -162,7 +156,6 @@ if (BUILD_GLEW)
 endif()
 
 ## order defined below is crucial for setting up the cmake environment correctly
-#include(get_tbb)
 if (BUILD_TBB)
   include(TBB)
   set(USD_ARGS ${USD_ARGS}
@@ -181,7 +174,6 @@ if (BUILD_BOOST)
   set(USD_DEPENDENCIES ${USD_DEPENDENCIES} boost)
 endif()
 
-include(Glew)
 
 if (BUILD_PNG)
   include(png)
@@ -301,12 +293,10 @@ if (BUILD_USD)
   external_install(USD)
 endif()
 
-message("cpack projects: " ${depProjectInfo})
-#set(CPACK_INSTALL_CMAKE_PROJECTS ${depProjectInfo})
-#set(installed_directories "${CMAKE_INSTALL_PREFIX}/lib" "lib")
-#set(installed_directories ${installed_directories} "${CMAKE_INSTALL_PREFIX}/include" "include")
-#set(installed_directories ${installed_directories} "${CMAKE_INSTALL_PREFIX}/bin" "bin")
-#set(installed_directories ${installed_directories} "${CMAKE_INSTALL_PREFIX}/plugin" "plugin")
+##
+## CPACK
+##
+
 set(installed_directories ${installed_directories} "${CMAKE_INSTALL_PREFIX}" "install")
 set(CPACK_INSTALLED_DIRECTORIES ${installed_directories})
 
