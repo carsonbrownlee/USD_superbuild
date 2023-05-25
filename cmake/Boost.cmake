@@ -3,8 +3,15 @@
 
 set (EP_BOOST "boost")
 
+set(BOOST_BOOTSTRAP "./bootstrap.sh")
+set(BOOST_B2 "./b2")
+if (Win32)
+  set(BOOST_BOOTSTRAP "bootstrap.bat")
+  set(BOOST_B2 "b2")
+endif()
 
-set(BOOST_BUILD_COMMAND ./b2 install --layout=system --prefix=${CMAKE_INSTALL_PREFIX} --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-iostreams --with-filesystem --with-serialization --with-wave --with-chrono)
+set(BOOST_CONFIGURE_COMMAND ${BOOST_BOOTSTRAP} --prefix=${CMAKE_INSTALL_PREFIX})
+set(BOOST_BUILD_COMMAND ${BOOST_B2} install --layout=system --prefix=${CMAKE_INSTALL_PREFIX} --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-iostreams --with-filesystem --with-serialization --with-wave --with-chrono)
 
 set(BOOST_PYTHON_VERSIONS)
 
@@ -55,7 +62,7 @@ ExternalProject_Add (
 
   LIST_SEPARATOR | # Use the alternate list separator
 
-  CONFIGURE_COMMAND ./bootstrap.sh --prefix=${CMAKE_INSTALL_PREFIX}
+  CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND}
   BUILD_COMMAND ${BOOST_BUILD_COMMAND}
   INSTALL_COMMAND ""
   INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
