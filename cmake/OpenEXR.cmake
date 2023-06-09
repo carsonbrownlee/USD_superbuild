@@ -15,6 +15,7 @@ set(OpenEXR_DEPENDENCIES ""
 # OpenEXR is adding "_d" to library names on windows.  Fun.
 if (WIN32)
   set(CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_FIND_LIBRARY_SUFFIXES};_d.lib")
+endif()
 
 build_component(
   NAME OpenEXR
