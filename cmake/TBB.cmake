@@ -6,10 +6,12 @@
 #
 set(COMPONENT_NAME tbb)
 option(TBB_FROM_SOURCE OFF)
-set(TBB_URL "https://github.com/oneapi-src/oneTBB/archive/refs/tags/v2020.3.tar.gz" CACHE STRING "tbb source url")
-if (Win32)
-  set(TBB_URL "https://github.com/oneapi-src/oneTBB/releases/download/2017_U6/tbb2017_20170412oss_win.zip" CACHE STRING "tbb source url")
+if(WIN32)
+  set(TBB_URL "https://github.com/oneapi-src/oneTBB/releases/download/2019_U6/tbb2019_20190410oss_win.zip" CACHE STRING "tbb source url")
+else()
+  set(TBB_URL "https://github.com/oneapi-src/oneTBB/archive/refs/tags/v2020.3.tar.gz" CACHE STRING "tbb source url")
 endif()
+
 set(COMPONENT_PATH ${CMAKE_BINARY_DIR}/${COMPONENT_NAME})
 
 if (APPLE)
@@ -20,15 +22,13 @@ else()
   set(TBB_OS Linux)
 endif()
 
-if (Win32)
+if (WIN32)
   # windows uses binaries only
   set(INSTALL_COMMAND
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory ${COMPONENT_PATH}\\bin\\intel64\\vc14 ${CMAKE_INSTALL_PREFIX}\\bin
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory ${COMPONENT_PATH}\\lib\\intel64\\vc14 ${CMAKE_INSTALL_PREFIX}\\lib
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory ${COMPONENT_PATH}\\include\\serial ${CMAKE_INSTALL_PREFIX}\\include\\serial
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory ${COMPONENT_PATH}\\include\\tbb ${CMAKE_INSTALL_PREFIX}\\include\\tbb
-    COMMAND "${CMAKE_COMMAND}" -DTBB_ROOT=${CMAKE_INSTALL_PREFIX} -DTBB_OS=${TBB_OS} -DSAVE_TO=${CMAKE_INSTALL_PREFIX}/lib/cmake/tbb -P ../cmake/tbb_config_generator.cmake
-    COMMAND sh ${COMPONENT_PATH}/tbb_install.sh
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory ${COMPONENT_PATH}\\source\\tbb2019_20190410oss\\bin\\intel64\\vc14 ${CMAKE_INSTALL_PREFIX}\\bin
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory ${COMPONENT_PATH}\\source\\tbb2019_20190410oss\\lib\\intel64\\vc14 ${CMAKE_INSTALL_PREFIX}\\lib
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory ${COMPONENT_PATH}\\source\\tbb2019_20190410oss\\include\\serial ${CMAKE_INSTALL_PREFIX}\\include\\serial
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory ${COMPONENT_PATH}\\source\\tbb2019_20190410oss\\include\\tbb ${CMAKE_INSTALL_PREFIX}\\include\\tbb
   )
   ExternalProject_Add(tbb
     PREFIX ${COMPONENT_NAME}
@@ -37,11 +37,12 @@ if (Win32)
     BINARY_DIR ${COMPONENT_NAME}/build
     URL ${TBB_URL}
     BUILD_COMMAND ""
+    CONFIGURE_COMMAND ""
     INSTALL_COMMAND ${INSTALL_COMMAND}
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
     BUILD_ALWAYS OFF
   )
-else(Win32)
+else(WIN32)
   # disjointed findTBB.cmake files look in different directories for libs
   # TODO: embree4 cmake appears to set TBB_DIR to TBB_ROOT/lib/cmake,
   # breaking tbbs generated cmake config file
@@ -75,5 +76,5 @@ else(Win32)
     INSTALL_COMMAND ${INSTALL_COMMAND}
     BUILD_ALWAYS OFF
   )
-endif(TBB_FROM_SOURCE)
+endif(WIN32)
 

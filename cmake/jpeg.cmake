@@ -16,19 +16,35 @@ set(JPEG_DEPENDENCIES ""
 #  boost #only needed if python libs are build
 )
 
-ExternalProject_Add (
-  ${EP_JPEG}
-  PREFIX ${EP_JPEG}
-  BINARY_DIR ${EP_JPEG}/build
-  SOURCE_DIR ${EP_JPEG}/source
-  URL ${JPEG_URL}
-  BUILD_ALWAYS OFF
-  INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
-  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-  CONFIGURE_COMMAND ../source/configure --prefix=${CMAKE_INSTALL_PREFIX}
-  BUILD_COMMAND make -j8
-  INSTALL_COMMAND make install
-)
+if (WIN32)
+  ExternalProject_Add (
+    ${EP_JPEG}
+    PREFIX ${EP_JPEG}
+    BINARY_DIR ${EP_JPEG}/build
+    SOURCE_DIR ${EP_JPEG}/source
+    URL ${JPEG_URL}
+    BUILD_ALWAYS OFF
+    INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+    #CONFIGURE_COMMAND ../source/configure --prefix=${CMAKE_INSTALL_PREFIX}
+    #BUILD_COMMAND make -j8
+    #INSTALL_COMMAND make install
+  )
+else()
+  ExternalProject_Add (
+    ${EP_JPEG}
+    PREFIX ${EP_JPEG}
+    BINARY_DIR ${EP_JPEG}/build
+    SOURCE_DIR ${EP_JPEG}/source
+    URL ${JPEG_URL}
+    BUILD_ALWAYS OFF
+    INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+    CONFIGURE_COMMAND ../source/configure --prefix=${CMAKE_INSTALL_PREFIX}
+    BUILD_COMMAND make -j8
+    INSTALL_COMMAND make install
+  )
+endif()
 
 #add_library(${EP_JPEG} STATIC IMPORTED)
 #set_property(TARGET ${EP_JPEG} PROPERTY IMPORTED_LOCATION ${CMAKE_INSTALL_PREFIX}/lib/libjpeg.a)

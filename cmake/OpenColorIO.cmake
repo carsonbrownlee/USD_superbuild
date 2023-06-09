@@ -2,8 +2,16 @@
 ## OCIO
 ##
 
-set(OCIO_ARGS ""
-    "-DCMAKE_CXX_FLAGS:STRING=-fPIC -w"
+if (WIN32)
+    string(REGEX REPLACE "/W[1-4]" "/W0" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    set(OCIO_ARGS "-DCMAKE_CXX_FLAGS:STRING=/W0")
+    set(OCIO_ARGS "-DCMAKE_CXX_FLAGS_RELEASE:STRING=/MD /O2 /Ob2")
+    add_compile_options("/W0")
+else()
+    set(OCIO_ARGS "-DCMAKE_CXX_FLAGS:STRING=-fPIC -w")
+    add_compile_options("-fPIC -w)"
+endif()
+set(OCIO_ARGS ${OCIO_ARGS}
     -DOCIO_BUILD_TRUELIGHT=OFF
     -DOCIO_BUILD_APPS=OFF
     -DOCIO_BUILD_NUKE=OFF
@@ -19,7 +27,6 @@ set(OCIO_ARGS ""
 )
 
 set(OCIO_DEPENDENCIES "")
-
 
 if(BUILD_OPENEXR)
     set(OCIO_DEPENDENCIES

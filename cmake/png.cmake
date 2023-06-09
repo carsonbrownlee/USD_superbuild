@@ -7,9 +7,7 @@ set (EP_PNG "png")
 set(PNG_ARGS ""
 )
 
-set(PNG_DEPENDENCIES ""
-#  boost #only needed if python libs are build
-)
+set(PNG_DEPENDENCIES ${EP_ZLIB})
 
 ExternalProject_Add (
   ${EP_PNG}
@@ -20,4 +18,5 @@ ExternalProject_Add (
   BUILD_ALWAYS OFF
   INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+  DEPENDS_ON ${PNG_DEPENDENCIES}
 )

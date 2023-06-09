@@ -5,13 +5,15 @@ set (EP_BOOST "boost")
 
 set(BOOST_BOOTSTRAP "./bootstrap.sh")
 set(BOOST_B2 "./b2")
-if (Win32)
+if (WIN32)
   set(BOOST_BOOTSTRAP "bootstrap.bat")
   set(BOOST_B2 "b2")
 endif()
 
 set(BOOST_CONFIGURE_COMMAND ${BOOST_BOOTSTRAP} --prefix=${CMAKE_INSTALL_PREFIX})
-set(BOOST_BUILD_COMMAND ${BOOST_B2} install --layout=system --prefix=${CMAKE_INSTALL_PREFIX} --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-iostreams --with-filesystem --with-serialization --with-wave --with-chrono)
+set(BOOST_BUILD_COMMAND "${BOOST_B2} install --prefix=${CMAKE_INSTALL_PREFIX} --build-dir=${CMAKE_CURRENT_BINARY_DIR}/build -j${BUILD_JOBS} address-model=64 link=shared runtime-link=shared threading=multi variant=release --with-atomic --with-program_options --with-regex --with-date_time --with-system --with-thread --with-iostreams --with-filesystem --with-serialization --with-wave --with-chrono")
+# --layout=system removes named include directory, but also changes names of libraries which breaks some dependencies
+
 
 set(BOOST_PYTHON_VERSIONS)
 
@@ -31,39 +33,56 @@ if (USE_PYTHON)
   list(APPEND BOOST_PYTHON_VERSIONS "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
   list(JOIN BOOST_PYTHON_VERSIONS "," BOOST_PYTHON_VERSIONS)
 
-  set(BOOST_BUILD_COMMAND ${BOOST_BUILD_COMMAND}  --user-config=${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam python=${BOOST_PYTHON_VERSIONS} --with-python)
+  set(BOOST_BUILD_COMMAND "${BOOST_BUILD_COMMAND}  --user-config=${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam python=${BOOST_PYTHON_VERSIONS} --with-python")
 endif()
 
-
-set(BOOST_URL "https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.gz" CACHE STRING "Boost URL")
-
-if (WIN32)
-  if (${MSVC_VERSION} EQUAL "142")
+if(WIN32)
+  set(BOOST_URL "https://downloads.sourceforge.net/project/boost/boost/1.70.0/boost_1_70_0.tar.gz")
+  set(USD_ARGS ${USD_ARGS} "-DBoost_INCLUDE_DIR=${CMAKE_INSTALL_PREFIX}/include/boost-1_70")
+  if (${MSVC_VERSION} GREATER_EQUAL "142")
+    set(BOOST_BUILD_COMMAND "${BOOST_BUILD_COMMAND} toolset=msvc-14.2 ")
+  elseif (${MSVC_VERSION} EQUAL "142")
     set(BOOST_BUILD_COMMAND ${BOOST_BUILD_COMMAND} toolset=msvc-14.2)
   elseif (${MSVC_VERSION} EQUAL "141")
     set(BOOST_BUILD_COMMAND ${BOOST_BUILD_COMMAND} toolset=msvc-14.1)
   else()
     set(BOOST_BUILD_COMMAND ${BOOST_BUILD_COMMAND} toolset=msvc-14.0)
   endif()
-endif()
-
-if (APPLE)
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/build_boost.bat ${BOOST_BUILD_COMMAND})
+elseif (APPLE)
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/build_boost.sh ${BOOST_BUILD_COMMAND})
   set(BOOST_BUILD_COMMAND ${BOOST_BUILD_COMMAND} toolset=clang)
   set(BOOST_URL https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_1_79_0.tar.gz)
+else()
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/build_boost.sh ${BOOST_BUILD_COMMAND})
+  set(BOOST_URL "https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.gz" CACHE STRING "Boost URL")
 endif()
 
-ExternalProject_Add (
-  ${EP_BOOST}
-
-  PREFIX         ${EP_BOOST}/source/boost
-  BUILD_IN_SOURCE 1
-  URL ${BOOST_URL}
-  BUILD_ALWAYS   OFF
-
-  LIST_SEPARATOR | # Use the alternate list separator
-
-  CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND}
-  BUILD_COMMAND ${BOOST_BUILD_COMMAND}
-  INSTALL_COMMAND ""
-  INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
-)
+# BUILD_COMMAND does not like strings, so we run scripts
+if (WIN32)
+  ExternalProject_Add (
+    ${EP_BOOST}
+    PREFIX         ${EP_BOOST}/source/boost
+    BUILD_IN_SOURCE 1
+    URL ${BOOST_URL}
+    BUILD_ALWAYS   OFF
+    LIST_SEPARATOR | # Use the alternate list separator
+    CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND}
+    BUILD_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/build_boost.bat
+    INSTALL_COMMAND ""
+    INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+  )
+else()
+  ExternalProject_Add (
+    ${EP_BOOST}
+    PREFIX         ${EP_BOOST}/source/boost
+    BUILD_IN_SOURCE 1
+    URL ${BOOST_URL}
+    BUILD_ALWAYS   OFF
+    LIST_SEPARATOR | # Use the alternate list separator
+    CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND}
+    BUILD_COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/build_boost.sh
+    INSTALL_COMMAND ""
+    INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+  )
+endif()

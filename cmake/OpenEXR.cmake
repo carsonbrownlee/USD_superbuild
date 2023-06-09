@@ -12,6 +12,10 @@ set(OpenEXR_DEPENDENCIES ""
 #  boost #only needed if python libs are build
 )
 
+# OpenEXR is adding "_d" to library names on windows.  Fun.
+if (WIN32)
+  set(CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_FIND_LIBRARY_SUFFIXES};_d.lib")
+
 build_component(
   NAME OpenEXR
   VERSION "v2.4.0"
