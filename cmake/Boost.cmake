@@ -15,25 +15,31 @@ set(BOOST_BUILD_COMMAND "${BOOST_B2} install --prefix=${CMAKE_INSTALL_PREFIX} --
 # --layout=system removes named include directory, but also changes names of libraries which breaks some dependencies
 
 
-set(BOOST_PYTHON_VERSIONS)
+set(BOOST_Python_VERSIONS)
+#set(Python_ROOT_DIR /usr/local/Frameworks/Python.framework/Versions/3.9)
 
 if (USE_PYTHON)
   message("writing file: " ${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam)
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam)
   if (USE_PYTHON2)
-    find_package(PythonInterp 2.7 REQUIRED)
+    find_package(Python 2.7 REQUIRED)
   else()
-    find_package(PythonInterp 3.0 REQUIRED)
+    if (${PYTHON_VERSION})
+      find_package(Python ${PYTHON_VERSION} EXACT REQUIRED)
+    else()
+      find_package(Python 3.0 REQUIRED)
+    endif()
   endif()
-  message("python: " ${PYTHON_EXECUTABLE})
+  message("boost.cmake python executable: " ${PYTHON_EXECUTABLE})
+  message("boost.cmake python version found: ${Python_VERSION_MAJOR} ${Python_VERSION_MINOR}")
   file(
     APPEND ${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam
-    "using python : ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR} : \"${PYTHON_EXECUTABLE}\" ; \n"
+    "using python : ${Python_VERSION_MAJOR}.${Python_VERSION_MINOR} : ${PYTHON_EXECUTABLE} ; \n"
   )
-  list(APPEND BOOST_PYTHON_VERSIONS "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
-  list(JOIN BOOST_PYTHON_VERSIONS "," BOOST_PYTHON_VERSIONS)
+  list(APPEND BOOST_Python_VERSIONS "${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}")
+  list(JOIN BOOST_Python_VERSIONS "," BOOST_Python_VERSIONS)
 
-  set(BOOST_BUILD_COMMAND "${BOOST_BUILD_COMMAND}  --user-config=${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam python=${BOOST_PYTHON_VERSIONS} --with-python")
+  set(BOOST_BUILD_COMMAND "${BOOST_BUILD_COMMAND}  --user-config=${CMAKE_CURRENT_BINARY_DIR}/source/boost/python-config.jam python=${BOOST_Python_VERSIONS} --with-python")
 endif()
 
 if(WIN32)
