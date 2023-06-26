@@ -62,7 +62,7 @@ option(BUILD_PTEX        "build Ptex"         OFF)
 option(BUILD_OPENSUBDIV  "build OpenSubdiv"   ON)
 option(BUILD_USD "Build USD" ON)
 set(USD_VERSION "v23.02" CACHE STRING "USD version tag")
-set(PYTHON_VERSION "3.9" CACHE STRING "python version, eg 3.9")
+set(PYTHON_VERSION "" CACHE STRING "python version, eg 3.9")
 
 if(BUILD_ALL_DEPS)
   set(BUILD_GLEW 	ON)
@@ -149,10 +149,11 @@ set(USD_ARGS
     -DPXR_BUILD_TESTS=OFF
     -DPXR_BUILD_TUTORIALS=OFF
     -DPXR_BUILD_EXAMPLES=OFF
-      -DPython_EXECUTABLE=/usr/local/bin/python3.9
-      -DPython3_EXECUTABLE=/usr/local/bin/python3.9
-      -DPython_ROOT_DIR=/usr/local/Frameworks/Python.framework/Versions/3.9
-      -DBoost_PYTHON_LIBRARY=/usr/local/bin/python3.9
+    -DPython_EXECUTABLE=${PYTHON_EXECUTABLE}
+    -DPython3_EXECUTABLE=${PYTHON_EXECUTABLE}
+    #-DPython_ROOT_DIR=/usr/local/Frameworks/Python.framework/Versions/3.9
+    #-DBoost_PYTHON_LIBRARY=/usr/local/bin/python3.9
+
 )
 
 if (BUILD_GLEW)
